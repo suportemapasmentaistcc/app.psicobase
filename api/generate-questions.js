@@ -9,15 +9,26 @@ function send(res, status, body) {
 }
 
 async function validateUser(authorization) {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return false;
-  if (!authorization?.startsWith('Bearer ')) return false;
-  const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-    headers: {
-      apikey: SUPABASE_ANON_KEY,
-      Authorization: authorization,
-    },
-  });
-  return response.ok;
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
+  if (!authorization?.startsWith('Bearer ')) return null;
+  const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers:{apikey:SUPABASE_ANON_KEY,Authorization:authorization} });
+  if(!response.ok) return null;
+  return response.json();
+}
+
+async function callModel(messages,max_tokens=4000,temperature=.3){
+  const models=['deepseek/deepseek-chat-v3-0324:free','qwen/qwen3-235b-a22b:free','meta-llama/llama-3.3-70b-instruct:free','openrouter/free'];
+  let lastError=null;
+  for(const model of models){
+    try{
+      const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${OPENROUTER_API_KEY}`,'HTTP-Referer':'https://app-psicobase.vercel.app','X-Title':'PsicoBase'},body:JSON.stringify({model,temperature,max_tokens,messages})});
+      const raw=await r.json();
+      if(r.ok && raw?.choices?.[0]?.message?.content) return raw;
+      lastError=raw;
+    }catch(e){lastError=e}
+  }
+  console.error('Model fallback exhausted:',lastError);
+  throw new Error('MODEL_UNAVAILABLE');
 }
 
 function extractJson(text) {
@@ -40,11 +51,11 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const authorized = await validateUser(req.headers.authorization);
-    if (!authorized) return send(res, 401, { error: 'Entre novamente para gerar questões.' });
+    const user = await validateUser(req.headers.authorization);
+    if (!user) return send(res, 401, { error: 'Entre novamente para gerar questões.' });
     if (!OPENROUTER_API_KEY) return send(res, 500, { error: 'A API de geração ainda não foi configurada.' });
 
-    const { topic, count = 5, level = 'Intermediário', focus = 'Compreensão teórica' } = req.body || {};
+    const { topic, count = 5, level = 'Intermediário', focus = 'Compreensão teórica', memory=[] } = req.body || {};
     const safeTopic = String(topic || '').trim().slice(0, 240);
     const safeCount = Math.min(10, Math.max(1, Number(count) || 5));
     if (!safeTopic) return send(res, 400, { error: 'Informe um tema.' });
@@ -62,33 +73,9 @@ Regras obrigatórias:
 - Retorne exclusivamente JSON válido, sem markdown.
 Formato: {"questions":[{"question":"...","difficulty":"...","expected_points":["..."],"answer_guide":"...","references":["Autor — Obra (ano original, quando seguro)"]}]}`;
 
-    const userPrompt = `BASE CURADA DA PSICOBASE:\n${retrieved.text}\n\nTema: ${safeTopic}\nQuantidade: ${safeCount}\nNível: ${String(level).slice(0, 40)}\nFoco: ${String(focus).slice(0, 80)}\nCrie questões variadas, não repetitivas e suficientemente elaboradas para avaliação discursiva.`;
+    const userPrompt = `BASE CURADA DA PSICOBASE:\n${retrieved.text}\n\nTema: ${safeTopic}\nQuantidade: ${safeCount}\nNível: ${String(level).slice(0, 40)}\nFoco: ${String(focus).slice(0, 80)}\nMEMÓRIA RECENTE DO ALUNO: ${JSON.stringify(Array.isArray(memory)?memory.slice(-12):[])}\nCrie questões variadas, não repetitivas e suficientemente elaboradas para avaliação discursiva. Quando pertinente, conecte o tema ao que o aluno já estudou sem presumir domínio.`;
 
-    const aiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-        'HTTP-Referer': 'https://app-psicobase.vercel.app',
-        'X-Title': 'PsicoBase',
-      },
-      body: JSON.stringify({
-        model: 'openrouter/free',
-        temperature: 0.35,
-        max_tokens: 3500,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-      }),
-    });
-
-    const raw = await aiResponse.json();
-    if (!aiResponse.ok) {
-      console.error('OpenRouter error:', raw);
-      return send(res, 502, { error: 'O serviço de geração está temporariamente indisponível.' });
-    }
-
+    const raw = await callModel([{ role: 'system', content: systemPrompt },{ role: 'user', content: userPrompt }],3500,.35);
     const content = raw?.choices?.[0]?.message?.content;
     const parsed = extractJson(content);
     const questions = Array.isArray(parsed.questions) ? parsed.questions.slice(0, safeCount) : [];
