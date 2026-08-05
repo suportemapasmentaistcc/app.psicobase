@@ -1,0 +1,14 @@
+ATUALIZAÇÃO PSICOBASE
+
+1. Substitua o index.html do GitHub pelo arquivo deste pacote.
+2. Crie no repositório a pasta api e envie generate-questions.js para ela.
+3. Mantenha manifest.webmanifest, service-worker.js e a pasta icons.
+4. Na Vercel, abra Settings > Environment Variables e crie:
+
+SUPABASE_URL = https://wynpjmzcopdgmotsgnss.supabase.co
+SUPABASE_ANON_KEY = sua chave publicável do Supabase
+OPENROUTER_API_KEY = chave criada no painel do OpenRouter
+
+5. Faça um novo deploy após salvar as variáveis.
+
+IMPORTANTE: nunca coloque OPENROUTER_API_KEY dentro do index.html ou do GitHub.
