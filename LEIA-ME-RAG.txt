@@ -1,0 +1,17 @@
+PSICOBASE — PROFESSOR CLÍNICO + BASE CURADA
+
+Arquivos novos:
+- api/professor-clinico.js
+- lib/psychoanalysis-kb.js
+
+Arquivos alterados:
+- index.html
+- api/generate-questions.js
+
+No GitHub, mantenha exatamente esta estrutura.
+Na Vercel, mantenha as variáveis:
+SUPABASE_URL
+SUPABASE_ANON_KEY
+OPENROUTER_API_KEY
+
+A base RAG desta versão é formada por sínteses editoriais próprias e referências bibliográficas, não por cópias integrais de livros protegidos.
