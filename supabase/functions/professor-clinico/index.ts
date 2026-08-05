@@ -82,6 +82,16 @@ Retorne somente um objeto JSON válido, sem markdown e sem texto antes ou depois
 
 type HistoryMessage = { role: 'user' | 'assistant'; content: string };
 
+class OpenRouterError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = 'OpenRouterError';
+    this.status = status;
+  }
+}
+
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -101,12 +111,28 @@ function normalizeHistory(value: unknown): HistoryMessage[] {
     .slice(-(MAX_HISTORY - 2));
 }
 
+function extractTextContent(content: unknown): string {
+  if (typeof content === 'string') return content;
+  if (!Array.isArray(content)) return '';
+
+  return content
+    .map((part) => {
+      if (typeof part === 'string') return part;
+      if (part && typeof part === 'object' && 'text' in part && typeof part.text === 'string') {
+        return part.text;
+      }
+      return '';
+    })
+    .join('');
+}
+
 function parseJsonPayload(content: unknown) {
-  if (typeof content !== 'string' || !content.trim()) {
+  const text = extractTextContent(content);
+  if (!text.trim()) {
     throw new Error('A OpenRouter retornou uma resposta vazia.');
   }
 
-  const cleaned = content.trim()
+  const cleaned = text.trim()
     .replace(/^```(?:json)?\s*/i, '')
     .replace(/\s*```$/, '');
 
@@ -136,16 +162,18 @@ async function callOpenRouter(
       messages,
       temperature: 0.35,
       max_tokens: 3500,
-      response_format: { type: 'json_object' },
     }),
   });
 
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
     const message = payload?.error?.message || payload?.message || `OpenRouter respondeu com HTTP ${response.status}.`;
-    const error = new Error(message) as Error & { status?: number };
-    error.status = response.status;
-    throw error;
+    console.error('OpenRouter rejeitou a solicitação:', {
+      status: response.status,
+      message,
+      model: MODEL,
+    });
+    throw new OpenRouterError(response.status, message);
   }
 
   return parseJsonPayload(payload?.choices?.[0]?.message?.content);
@@ -197,6 +225,55 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ pack, model: MODEL });
   } catch (error) {
     console.error('Erro no Professor Clínico:', error);
+
+    if (error instanceof OpenRouterError) {
+      if (error.status === 401 || error.status === 403) {
+        return jsonResponse({
+          error: 'A chave da OpenRouter foi rejeitada. Verifique o Secret OPENROUTER_API_KEY no Supabase.',
+          provider_status: error.status,
+        }, 502);
+      }
+
+      if (error.status === 404) {
+        return jsonResponse({
+          error: `O modelo ${MODEL} não está disponível na OpenRouter neste momento.`,
+          provider_status: error.status,
+        }, 502);
+      }
+
+      if (error.status === 402) {
+        return jsonResponse({
+          error: 'A OpenRouter não autorizou o uso deste modelo para a conta configurada.',
+          provider_status: error.status,
+        }, 502);
+      }
+
+      if (error.status === 429) {
+        return jsonResponse({
+          error: 'O limite gratuito da OpenRouter foi atingido. Tente novamente em alguns instantes.',
+          provider_status: error.status,
+        }, 429);
+      }
+
+      if (error.status === 400 || error.status === 422) {
+        return jsonResponse({
+          error: `A OpenRouter rejeitou a solicitação para o modelo ${MODEL}. Consulte os logs da Function para o motivo detalhado.`,
+          provider_status: error.status,
+        }, 502);
+      }
+
+      return jsonResponse({
+        error: 'A OpenRouter está temporariamente indisponível. Tente novamente em alguns instantes.',
+        provider_status: error.status,
+      }, 502);
+    }
+
+    if (error instanceof SyntaxError || (error instanceof Error && /formato inválido|resposta vazia|não retornou/i.test(error.message))) {
+      return jsonResponse({
+        error: 'O modelo respondeu em um formato inesperado. Tente novamente.',
+      }, 502);
+    }
+
     return jsonResponse({ error: 'Não foi possível processar esta solicitação.' }, 500);
   }
 });

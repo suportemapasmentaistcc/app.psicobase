@@ -3657,6 +3657,27 @@ window.getFreshSupabaseSession = async function(){
   return session;
 };
 
+window.invokeAuthenticatedEdgeFunction = async function(functionName,body){
+  const session=await getFreshSupabaseSession();
+  if(!session?.access_token)throw new Error('Sua sessão expirou. Entre novamente para continuar.');
+  const endpoint=`https://wynpjmzcopdgmotsgnss.supabase.co/functions/v1/${encodeURIComponent(functionName)}`;
+  const response=await fetch(endpoint,{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey':'sb_publishable_DZLcWvfRF3vxtR7oFY-5qg_RPf1aK9I',
+      'Authorization':`Bearer ${session.access_token}`
+    },
+    body:JSON.stringify(body)
+  });
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok){
+    const message=payload?.error||payload?.message||(response.status===401?'Sessão não autorizada. Entre novamente e tente outra vez.':'Não foi possível acessar o serviço agora.');
+    const error=new Error(message);error.status=response.status;throw error;
+  }
+  return payload;
+};
+
 window.getLearningMemory = function(){
   try{return JSON.parse(localStorage.getItem('psicobase_learning_memory')||'[]').slice(-20)}catch{return []}
 };
@@ -3670,6 +3691,11 @@ window.saveLearningMemory = async function(entry){
   }catch(e){console.warn('Memória local salva; nuvem indisponível.',e)}
 };
 
+/* Histórico do Professor Clínico existe somente nesta aba/sessão.
+   Não é salvo em localStorage, Supabase ou qualquer outra persistência. */
+const clinicalProfessorHistory=[];
+const CLINICAL_HISTORY_LIMIT=10;
+
 window.generateClinicalProfessorSession = async function(){
   const topic=(document.getElementById('pc-topic')?.value||'').trim();
   const level=document.getElementById('pc-level')?.value||'Intermediário';
@@ -3682,13 +3708,15 @@ window.generateClinicalProfessorSession = async function(){
   if(status){status.className='question-generator-status';status.textContent='Localizando conceitos e referências relacionados ao tema…';}
   if(results) results.innerHTML='';
   try{
-    const session=await getFreshSupabaseSession();
-    const memory=getLearningMemory();
-    const response=await fetch('/api/professor-clinico',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},body:JSON.stringify({topic,level,goal,mode:'study_pack',memory})});
-    const payload=await response.json().catch(()=>({}));
-    if(!response.ok) throw new Error(payload.error||'Não foi possível preparar a sessão.');
+    const history=clinicalProfessorHistory.slice(-CLINICAL_HISTORY_LIMIT);
+    const payload=await invokeAuthenticatedEdgeFunction('professor-clinico',{mode:'professor',topic,level,goal,history});
+    if(payload?.error)throw new Error(payload.error);
     const p=payload.pack||{};
-    saveLearningMemory({topic,activity_type:'professor_clinico',level,summary:p.overview||''});
+    clinicalProfessorHistory.push(
+      {role:'user',content:`Tema ou dúvida: ${topic}\nNível: ${level}\nObjetivo: ${goal}`},
+      {role:'assistant',content:JSON.stringify(p)}
+    );
+    if(clinicalProfessorHistory.length>CLINICAL_HISTORY_LIMIT)clinicalProfessorHistory.splice(0,clinicalProfessorHistory.length-CLINICAL_HISTORY_LIMIT);
     if(status){status.className='question-generator-status hidden';status.textContent='';}
     const authors=Array.isArray(p.author_perspectives)?p.author_perspectives:[];
     const refs=Array.isArray(p.references)?p.references:[];
@@ -3724,11 +3752,8 @@ window.generateDiscursiveQuestions = async function(){
   if(status){status.className='question-generator-status';status.textContent='Consultando a base teórica e estruturando as questões…';}
   if(results) results.innerHTML='';
   try{
-    const session=await getFreshSupabaseSession();
-    const memory=getLearningMemory();
-    const response=await fetch('/api/generate-questions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},body:JSON.stringify({topic,count,level,focus,memory})});
-    const payload=await response.json().catch(()=>({}));
-    if(!response.ok) throw new Error(payload.error||'Não foi possível gerar as questões.');
+    const payload=await invokeAuthenticatedEdgeFunction('professor-clinico',{mode:'questions',topic,count,level,focus});
+    if(payload?.error)throw new Error(payload.error);
     const questions=Array.isArray(payload.questions)?payload.questions:[];
     saveLearningMemory({topic,activity_type:'questoes_discursivas',level,summary:`${questions.length} questões sobre ${topic}`});
     if(!questions.length) throw new Error('A resposta não trouxe questões válidas.');
