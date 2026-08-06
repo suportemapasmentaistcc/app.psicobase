@@ -1536,17 +1536,56 @@ function viewClinicaSupervisao(){
   <h1 class="page-title">Preparação para supervisão</h1>
   <div class="case-notice">Não inclua nomes, documentos, contatos, endereços ou qualquer informação que permita identificar o paciente.</div>
   <div class="card">
-    <div class="field"><label>Título interno</label><input placeholder="Ex.: Caso A — sessão de 18/07"></div>
-    <div class="field"><label>Contexto do caso</label><textarea class="reflect-box" style="min-height:90px;" placeholder="Descreva o contexto, sem dados identificáveis…"></textarea></div>
-    <div class="field"><label>Dúvidas</label><textarea class="reflect-box" style="min-height:70px;" placeholder="Quais dúvidas você quer levar?"></textarea></div>
-    <div class="field"><label>Conceitos percebidos</label><input placeholder="Ex.: transferência, resistência…"></div>
+    <div class="field"><label>Título interno</label><input id="supervisionTitle" placeholder="Ex.: Caso A — sessão de 18/07"></div>
+    <div class="field"><label>Contexto do caso</label><textarea id="supervisionContext" class="reflect-box" style="min-height:90px;" placeholder="Descreva o contexto, sem dados identificáveis…"></textarea></div>
+    <div class="field"><label>Dúvidas</label><textarea id="supervisionDoubts" class="reflect-box" style="min-height:70px;" placeholder="Quais dúvidas você quer levar?"></textarea></div>
+    <div class="field"><label>Conceitos percebidos</label><input id="supervisionConcepts" placeholder="Ex.: transferência, resistência…"></div>
     <div class="action-row" style="margin-top:8px;">
-      <button class="btn" onclick="toast('Rascunho salvo')">Salvar como rascunho</button>
-      <button class="btn primary" onclick="toast('Exportado em formato organizado')">Exportar</button>
+      <button class="btn" onclick="saveSupervisionDraft()">Salvar como rascunho</button>
+      <button class="btn primary" onclick="exportSupervisionWithAi(this)">Exportar</button>
     </div>
+    <div id="supervisionResult"></div>
   </div>
   `;
 }
+function supervisionFormData(){return {title:document.getElementById('supervisionTitle')?.value.trim()||'',context:document.getElementById('supervisionContext')?.value.trim()||'',doubts:document.getElementById('supervisionDoubts')?.value.trim()||'',concepts:document.getElementById('supervisionConcepts')?.value.trim()||''}}
+function saveSupervisionDraft(){
+  const data=supervisionFormData();
+  if(data.context.length<20){toast('Descreva o contexto do caso antes de salvar o rascunho.');document.getElementById('supervisionContext')?.focus();return}
+  STATE.supervisionDrafts=Array.isArray(STATE.supervisionDrafts)?STATE.supervisionDrafts:[];
+  STATE.supervisionDrafts.unshift({...data,id:'s'+Date.now(),savedAt:new Date().toISOString()});
+  STATE.supervisionDrafts=STATE.supervisionDrafts.slice(0,10);
+  toast('Rascunho salvo nesta sessão.');
+}
+function supervisionList(items){return Array.isArray(items)&&items.length?`<ul>${items.map(item=>`<li>${escapeHtml(item)}</li>`).join('')}</ul>`:'<p>Sem pontos adicionais nesta seção.</p>'}
+function renderSupervisionReport(report){
+  return `<div class="section-head"><h2>Roteiro de supervisão</h2></div><div class="lesson-block"><h3>Síntese do material</h3><p>${escapeHtml(report.summary)}</p></div><div class="grid-2"><div class="lesson-block"><h3>Observações</h3>${supervisionList(report.observations)}</div><div class="lesson-block"><h3>Hipóteses abertas</h3>${supervisionList(report.hypotheses)}</div><div class="lesson-block"><h3>Eixos teóricos</h3>${supervisionList(report.theoretical_axes)}</div><div class="lesson-block"><h3>Perguntas para supervisão</h3>${supervisionList(report.supervision_questions)}</div><div class="lesson-block"><h3>Dados que ainda faltam</h3>${supervisionList(report.missing_information)}</div><div class="lesson-block"><h3>Cuidados e limites</h3>${supervisionList(report.cautions)}</div></div>${Array.isArray(report.references)&&report.references.length?`<div class="ref-block">${report.references.map(ref=>`<div class="ref-line">${escapeHtml(ref)}</div>`).join('')}</div>`:''}`;
+}
+function supervisionReportText(data,report){
+  const section=(title,items)=>`${title}\n${Array.isArray(items)&&items.length?items.map(x=>`- ${x}`).join('\n'):'- Sem pontos adicionais'}\n`;
+  return `PsicoBase — Preparação para supervisão\n${data.title?`Título interno: ${data.title}\n`:''}\nSÍNTESE\n${report.summary}\n\n${section('OBSERVAÇÕES',report.observations)}\n${section('HIPÓTESES ABERTAS',report.hypotheses)}\n${section('EIXOS TEÓRICOS',report.theoretical_axes)}\n${section('PERGUNTAS PARA SUPERVISÃO',report.supervision_questions)}\n${section('DADOS QUE AINDA FALTAM',report.missing_information)}\n${section('CUIDADOS E LIMITES',report.cautions)}\n${section('REFERÊNCIAS',report.references)}\nMaterial organizado para fins educacionais. Não substitui supervisão clínica profissional.`;
+}
+function downloadSupervisionReport(data,report){
+  const blob=new Blob([supervisionReportText(data,report)],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='psicobase-preparacao-supervisao.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+async function exportSupervisionWithAi(button){
+  const data=supervisionFormData(),result=document.getElementById('supervisionResult');
+  if(data.context.length<40){toast('Descreva um pouco mais o contexto clínico antes de exportar.');document.getElementById('supervisionContext')?.focus();return}
+  const original=button?.textContent||'Exportar';if(button){button.disabled=true;button.textContent='Preparando…'}
+  try{
+    const payload=await invokeAuthenticatedEdgeFunction('professor-clinico',{mode:'supervision',topic:'Supervisão clínica',context:data.context,doubts:data.doubts,concepts:data.concepts});
+    const report=payload?.supervision;if(!report?.summary)throw new Error('O PsicoBase não recebeu uma preparação de supervisão válida.');
+    if(result)result.innerHTML=renderSupervisionReport(report);
+    downloadSupervisionReport(data,report);toast('Preparação de supervisão exportada.');
+  }catch(error){console.error('Erro ao preparar supervisão:',error);toast(error?.message||'Não foi possível preparar a supervisão agora.');}
+  finally{if(button){button.disabled=false;button.textContent=original}}
+}
+
+// Mantém as ações da tela de supervisão acessíveis aos handlers inline mesmo
+// quando o app é renderizado novamente durante a navegação.
+window.saveSupervisionDraft=saveSupervisionDraft;
+window.exportSupervisionWithAi=exportSupervisionWithAi;
 
 /* ============ ENSINO ============ */
 function viewEnsino(){
@@ -2119,7 +2158,7 @@ function viewCasos(){const tc=todayCase(),d=dailyState();return `<span class="ey
 
 let caseConversations={};try{caseConversations=JSON.parse(localStorage.getItem('psicobase_case_conversations')||'{}')}catch{caseConversations={}}
 function saveCaseConversations(){try{localStorage.setItem('psicobase_case_conversations',JSON.stringify(caseConversations))}catch{}}
-function caseConversation(id){return caseConversations[id]||{stage:0,first:'',feedback:'',second:'',completed:false}}
+function caseConversation(id){return caseConversations[id]||{stage:0,first:'',feedback:'',second:'',finalFeedback:'',completed:false}}
 function escapeHtml(v){return String(v||'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]))}
 function normalizeClinicalText(value){return String(value||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim()}
 function analyzeClinicalWriting(text){
@@ -2161,11 +2200,40 @@ function caseFinalFeedback(text,c,d){
   const evidenceNote=a.hasEvidence?'A resposta apresenta uma justificativa para a hipótese.':'A relação entre a hipótese e os dados do caso ainda precisa ficar mais clara.';
   return `${conceptNote} ${evidenceNote} Sua revisão ganha força quando diferencia o que foi observado, o que foi inferido e o que ainda permanece como pergunta sobre ${name}.`;
 }
-function submitCaseFirst(id){const c=CASES.find(x=>x.id===id),d=CASE_DETAILS[id],el=document.getElementById('caseAnswer1'),text=el?.value.trim()||'';if(text.length<35||new Set(normalizeClinicalText(text).replace(/[^a-z0-9]/g,'')).size<8){toast('Desenvolva uma hipótese com observações e conceitos clínicos.');el?.focus();return}const x=caseConversation(id);x.first=text;x.feedback=caseFeedback(text,c,d);x.stage=1;caseConversations[id]=x;saveCaseConversations();render();setTimeout(()=>document.getElementById('caseConsultation')?.scrollIntoView({behavior:'smooth'}),50)}
-function submitCaseSecond(id){const el=document.getElementById('caseAnswer2'),text=el?.value.trim()||'';if(text.length<35||new Set(normalizeClinicalText(text).replace(/[^a-z0-9]/g,'')).size<8){toast('Reelabore sua análise com argumentos clínicos.');el?.focus();return}const x=caseConversation(id);x.second=text;x.stage=2;x.completed=true;x.completedAt=new Date().toISOString();caseConversations[id]=x;saveCaseConversations();render();setTimeout(()=>document.getElementById('caseConsultation')?.scrollIntoView({behavior:'smooth'}),50)}
+function caseAiContext(c,d){return [`Título: ${c.title}`,`Categoria clínica: ${c.cat}`,`Perspectiva indicada no exercício: ${c.persp}`,`Queixa/apresentação: ${d.complaint}`,`Descrição do caso: ${c.text}`,`História ampliada: ${d.history}`,`Fragmentos das sessões: ${d.session.map(([when,text])=>`${when}: ${text}`).join(' | ')}`,`Pontos para observação: ${c.points.join(' | ')}`].join('\n')}
+async function requestCaseAiFeedback(stage,c,d,answer,x){
+  const payload=await invokeAuthenticatedEdgeFunction('professor-clinico',{mode:'case_feedback',topic:c.title,stage,case_context:caseAiContext(c,d),answer,previous_answer:x?.first||'',previous_feedback:x?.feedback||''});
+  const analysis=payload?.analysis;
+  if(!analysis?.feedback)throw new Error('O PsicoBase não recebeu uma devolutiva válida para este caso.');
+  return analysis;
+}
+async function submitCaseFirst(id,button){
+  const c=CASES.find(x=>x.id===id),d=CASE_DETAILS[id],el=document.getElementById('caseAnswer1'),text=el?.value.trim()||'';
+  if(!c||!d)return;
+  if(text.length<35||new Set(normalizeClinicalText(text).replace(/[^a-z0-9]/g,'')).size<8){toast('Desenvolva uma hipótese com observações e conceitos clínicos.');el?.focus();return}
+  const originalLabel=button?.textContent||'Enviar hipótese';
+  if(button){button.disabled=true;button.textContent='Analisando…'}
+  try{
+    const x=caseConversation(id),analysis=await requestCaseAiFeedback('initial',c,d,text,x);
+    x.first=text;x.feedback=analysis.feedback;x.supervisionQuestion=analysis.supervision_question||'';x.references=analysis.references||[];x.stage=1;caseConversations[id]=x;saveCaseConversations();render();
+    setTimeout(()=>document.getElementById('caseConsultation')?.scrollIntoView({behavior:'smooth'}),50);
+  }catch(error){console.error('Erro ao analisar hipótese clínica:',error);toast(error?.message||'Não foi possível analisar sua hipótese agora.');if(button){button.disabled=false;button.textContent=originalLabel}}
+}
+async function submitCaseSecond(id,button){
+  const c=CASES.find(x=>x.id===id),d=CASE_DETAILS[id],el=document.getElementById('caseAnswer2'),text=el?.value.trim()||'';
+  if(!c||!d)return;
+  if(text.length<35||new Set(normalizeClinicalText(text).replace(/[^a-z0-9]/g,'')).size<8){toast('Reelabore sua análise com argumentos clínicos.');el?.focus();return}
+  const originalLabel=button?.textContent||'Concluir e liberar aprofundamento';
+  if(button){button.disabled=true;button.textContent='Avaliando…'}
+  try{
+    const x=caseConversation(id),analysis=await requestCaseAiFeedback('final',c,d,text,x);
+    x.second=text;x.finalFeedback=analysis.feedback;x.finalSupervisionQuestion=analysis.supervision_question||'';x.finalReferences=analysis.references||[];x.stage=2;x.completed=true;x.completedAt=new Date().toISOString();caseConversations[id]=x;saveCaseConversations();render();
+    setTimeout(()=>document.getElementById('caseConsultation')?.scrollIntoView({behavior:'smooth'}),50);
+  }catch(error){console.error('Erro ao avaliar elaboração clínica:',error);toast(error?.message||'Não foi possível concluir a avaliação agora.');if(button){button.disabled=false;button.textContent=originalLabel}}
+}
 function caseConcepts(c){return {Repetição:['compulsaoRepeticao','transferencia','posterioridade'],Transferência:['transferencia','resistencia','sujeitoSupostoSaber'],Luto:['luto','melancolia','identificacao'],Angústia:['angustiaSinal','desejo','objetoA'],Vínculos:['holding','falsoSelf','separacao'],Resistência:['actingOut','passagemAto','superego']}[c.cat]||['transferencia','inconsciente']}
-function renderCaseFinal(c,d,x){const rel=caseConcepts(c),finalFeedback=caseFinalFeedback(x.second,c,d);return `<div class="consult-message user"><strong>Sua hipótese inicial</strong>${escapeHtml(x.first)}</div><div class="consult-message system"><strong>Devolutiva da PsicoBase</strong>${x.feedback}</div><div class="consult-message user"><strong>Sua elaboração final</strong>${escapeHtml(x.second)}</div><div class="consult-message system"><strong>Avaliação da elaboração final</strong>${finalFeedback}</div><div class="section-head"><h2>Aprofundamento final</h2></div><div class="grid-2"><div class="lesson-block"><h3>Leitura possível</h3><p>O caso permite articular ${rel.map(k=>CONCEPTS[k]?.name).filter(Boolean).join(', ')}. O objetivo não é rotular ${d.name.split(' ')[0]}, mas compreender a função do sintoma, da defesa e da repetição.</p><p>Uma formulação responsável separa observação, inferência e conclusão e permanece aberta ao que novas sessões poderiam contradizer.</p></div><div class="lesson-block"><h3>Conceitos para aprofundar</h3>${rel.map(k=>`<span class="related-chip" onclick="nav('concept','${k}')">${CONCEPTS[k]?.name||k}</span>`).join('')}<div class="lesson-callout"><strong>Para supervisão:</strong> que dado ainda falta antes de sustentar sua hipótese?</div></div></div><div class="case-closed">Caso concluído. Suas respostas foram arquivadas e este exercício não pode ser refeito.</div>`}
-function renderCaseConsultation(c,d){const x=caseConversation(c.id);if(x.completed)return `<section class="case-consultation" id="caseConsultation"><div class="consult-head"><div><span class="consult-step">Consulta concluída</span><h2>Revisão da sua análise</h2></div><span class="status-badge done">Arquivado</span></div><div class="consult-body">${renderCaseFinal(c,d,x)}</div></section>`;if(x.stage===0)return `<section class="case-consultation" id="caseConsultation"><div class="consult-head"><div><span class="consult-step">Etapa 1 de 2</span><h2>Formule sua hipótese inicial</h2></div></div><div class="consult-body"><p class="consult-prompt">Quais conflitos, defesas ou padrões você identifica no caso de ${d.name.split(' ')[0]}?</p><p class="consult-help">Explique o que chamou sua atenção e quais conceitos podem ajudar. Não é necessário produzir um diagnóstico.</p><textarea id="caseAnswer1" class="consult-textarea" placeholder="Escreva sua leitura inicial…"></textarea><button class="btn primary" style="margin-top:12px" onclick="submitCaseFirst('${c.id}')">Enviar hipótese</button></div></section>`;return `<section class="case-consultation" id="caseConsultation"><div class="consult-head"><div><span class="consult-step">Etapa 2 de 2</span><h2>Aprofunde sua leitura</h2></div></div><div class="consult-body"><div class="consult-message user"><strong>Sua hipótese inicial</strong>${escapeHtml(x.first)}</div><div class="consult-message system"><strong>Devolutiva da PsicoBase</strong>${x.feedback}</div><p class="consult-prompt">Depois dessa devolutiva, como você reformularia sua hipótese?</p><textarea id="caseAnswer2" class="consult-textarea" placeholder="Reelabore sua análise…"></textarea><button class="btn primary" style="margin-top:12px" onclick="submitCaseSecond('${c.id}')">Concluir e liberar aprofundamento</button></div></section>`}
+function renderCaseFinal(c,d,x){const rel=caseConcepts(c),finalFeedback=x.finalFeedback||caseFinalFeedback(x.second,c,d),supervisionQuestion=x.finalSupervisionQuestion||'Que dado ainda falta antes de sustentar sua hipótese?';return `<div class="consult-message user"><strong>Sua hipótese inicial</strong>${escapeHtml(x.first)}</div><div class="consult-message system"><strong>Devolutiva da PsicoBase</strong>${escapeHtml(x.feedback)}</div><div class="consult-message user"><strong>Sua elaboração final</strong>${escapeHtml(x.second)}</div><div class="consult-message system"><strong>Avaliação da elaboração final</strong>${escapeHtml(finalFeedback)}</div><div class="section-head"><h2>Aprofundamento final</h2></div><div class="grid-2"><div class="lesson-block"><h3>Leitura possível</h3><p>O caso permite articular ${rel.map(k=>CONCEPTS[k]?.name).filter(Boolean).join(', ')}. O objetivo não é rotular ${d.name.split(' ')[0]}, mas compreender a função do sintoma, da defesa e da repetição.</p><p>Uma formulação responsável separa observação, inferência e conclusão e permanece aberta ao que novas sessões poderiam contradizer.</p></div><div class="lesson-block"><h3>Conceitos para aprofundar</h3>${rel.map(k=>`<span class="related-chip" onclick="nav('concept','${k}')">${CONCEPTS[k]?.name||k}</span>`).join('')}<div class="lesson-callout"><strong>Para supervisão:</strong> ${escapeHtml(supervisionQuestion)}</div></div></div><div class="case-closed">Caso concluído. Suas respostas foram arquivadas e este exercício não pode ser refeito.</div>`}
+function renderCaseConsultation(c,d){const x=caseConversation(c.id);if(x.completed)return `<section class="case-consultation" id="caseConsultation"><div class="consult-head"><div><span class="consult-step">Consulta concluída</span><h2>Revisão da sua análise</h2></div><span class="status-badge done">Arquivado</span></div><div class="consult-body">${renderCaseFinal(c,d,x)}</div></section>`;if(x.stage===0)return `<section class="case-consultation" id="caseConsultation"><div class="consult-head"><div><span class="consult-step">Etapa 1 de 2</span><h2>Formule sua hipótese inicial</h2></div></div><div class="consult-body"><p class="consult-prompt">Quais conflitos, defesas ou padrões você identifica no caso de ${d.name.split(' ')[0]}?</p><p class="consult-help">Explique o que chamou sua atenção e quais conceitos podem ajudar. Não é necessário produzir um diagnóstico.</p><textarea id="caseAnswer1" class="consult-textarea" placeholder="Escreva sua leitura inicial…"></textarea><button class="btn primary" style="margin-top:12px" onclick="submitCaseFirst('${c.id}',this)">Enviar hipótese</button></div></section>`;return `<section class="case-consultation" id="caseConsultation"><div class="consult-head"><div><span class="consult-step">Etapa 2 de 2</span><h2>Aprofunde sua leitura</h2></div></div><div class="consult-body"><div class="consult-message user"><strong>Sua hipótese inicial</strong>${escapeHtml(x.first)}</div><div class="consult-message system"><strong>Devolutiva da PsicoBase</strong>${escapeHtml(x.feedback)}</div><p class="consult-prompt">Depois dessa devolutiva, como você reformularia sua hipótese?</p><textarea id="caseAnswer2" class="consult-textarea" placeholder="Reelabore sua análise…"></textarea><button class="btn primary" style="margin-top:12px" onclick="submitCaseSecond('${c.id}',this)">Concluir e liberar aprofundamento</button></div></section>`}
 function viewCaseDetail(id){const c=CASES.find(x=>x.id===id)||CASES[0],d=CASE_DETAILS[c.id]||CASE_DETAILS.c1;return `<div class="case-hero"><img src="${d.image}" alt="Imagem ilustrativa do caso" loading="lazy"><div class="case-hero-copy"><div class="case-file-code">${d.code} · Dossiê de estudo</div><h1>${c.title}</h1><p>${d.complaint}</p><div class="case-hero-meta"><span>${c.cat}</span><span>${c.persp}</span><span>${c.duration}</span><span>Nível ${c.level}</span></div></div></div><div class="section-head" style="margin-top:0"><div><span class="eyebrow">Paciente</span><h2 class="patient-name">${d.name}</h2></div></div><div class="patient-profile"><div class="patient-fact"><small>Idade</small><strong>${d.age}</strong></div><div class="patient-fact"><small>Ocupação</small><strong>${d.occupation}</strong></div><div class="patient-fact"><small>Situação afetiva</small><strong>${d.relationship}</strong></div><div class="patient-fact"><small>Momento do processo</small><strong>${d.sessions}</strong></div></div><div class="case-quote">“${d.quote.replace(/^“|”$/g,'')}”</div><div class="grid-2"><div><div class="section-head"><h2>Apresentação do caso</h2></div><div class="card"><p style="font-size:14px;color:var(--ink-soft);margin:0;line-height:1.72">${c.text}</p><p style="font-size:14px;color:var(--ink-soft);margin:14px 0 0;line-height:1.72">${d.history}</p></div></div><div><div class="section-head"><h2>Fragmentos das sessões</h2></div><div class="card session-timeline">${d.session.map(([a,b])=>`<div class="session-item"><div class="when">${a}</div><p>${b}</p></div>`).join('')}</div></div></div><div class="section-head"><h2>Pontos para observação</h2></div><div class="card">${c.points.map(p=>`<div class="qa-item" style="cursor:default">${p}</div>`).join('')}</div>${renderCaseConsultation(c,d)}<div class="case-notice">Caso simulado para fins educacionais. Não substitui formação, supervisão clínica ou avaliação profissional.</div>`}
 function viewCasos(){const tc=todayCase(),done=Object.entries(caseConversations).filter(([,v])=>v.completed).map(([id])=>CASES.find(c=>c.id===id)).filter(Boolean);return `<span class="eyebrow">Arquivo clínico diário</span><h1 class="page-title">Caso de hoje</h1><p class="page-sub">Um único caso é liberado a cada 24 horas. Depois de concluído, ele permanece disponível apenas para revisão.</p><section class="daily-case-gate"><img src="${CASE_DETAILS[tc.id]?.image||CASE_DETAILS.c1.image}" alt="Imagem ilustrativa do caso"><div><span class="eyebrow" style="color:#9fc7e4">Disponível hoje · ${dateKey()}</span><h2>${tc.title}</h2><p>${tc.text}</p><div class="case-hero-meta"><span>${tc.cat}</span><span>${tc.persp}</span><span>${tc.duration}</span></div><button class="dh-btn" style="margin-top:18px" onclick="nav('case-detail','${tc.id}')">${caseConversation(tc.id).completed?'Revisar caso concluído':'Abrir e analisar caso'}</button></div></section>${done.length?`<div class="section-head"><h2>Casos já respondidos</h2></div><div class="completed-case-list">${done.map(c=>`<article class="tile" onclick="nav('case-detail','${c.id}')"><div class="tile-label">Concluído</div><div class="tile-title">${c.title}</div><div class="tile-desc">Releia suas respostas e o aprofundamento.</div></article>`).join('')}</div>`:''}<div class="section-head"><h2>Próximos arquivos</h2><span class="link-more">Liberados diariamente</span></div><div class="case-locked-grid">${[1,2,3].map(n=>`<article class="case-lock"><div class="lock-icon">◷</div><h4>Arquivo ${String(dailyIndex()+n+1).padStart(2,'0')}</h4><p>Novo caso clínico em ${n===1?'24 horas':n+' dias'}.</p></article>`).join('')}</div><button class="mobile-daily-fab" onclick="nav('case-detail','${tc.id}')">Abrir caso diário</button>`}
 
@@ -3228,11 +3296,13 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
     else if(page==='case-detail'){const c=window.CASES?.find(x=>x.id===param);if(c)logActivity('case_open',param,c.title)}
   };
   const oldSubmitSecond=window.submitCaseSecond;
-  window.submitCaseSecond=function(id){
-    const before=window.caseConversations?.[id]?.completed;
-    if(typeof oldSubmitSecond==='function')oldSubmitSecond.apply(this,arguments);
-    const after=window.caseConversations?.[id]?.completed;
-    if(!before&&after){const c=window.CASES?.find(x=>x.id===id);logActivity('case_complete',id,c?.title||'Caso clínico concluído')}
+  window.submitCaseSecond=async function(id){
+    const before=caseConversations?.[id]?.completed;
+    let result;
+    if(typeof oldSubmitSecond==='function')result=await oldSubmitSecond.apply(this,arguments);
+    const after=caseConversations?.[id]?.completed;
+    if(!before&&after){const c=CASES.find(x=>x.id===id);logActivity('case_complete',id,c?.title||'Caso clínico concluído')}
+    return result;
   };
 
   function mondayOf(date=new Date()){const d=new Date(date);const day=(d.getDay()+6)%7;d.setHours(0,0,0,0);d.setDate(d.getDate()-day);return d}
@@ -3262,7 +3332,17 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
     return `<section class="progress-suite"><article class="progress-card"><div class="progress-card-head"><div><div class="progress-kicker">Constância</div><h3>Seu ritmo de estudo</h3></div><div class="streak-number">${g.streak}<small> dias</small></div></div><div class="week-days">${dayCells}</div><div class="goal-row"><div class="goal-label"><span>Meta semanal · conceitos</span><strong>${g.weekConcepts}/5</strong></div><div class="goal-track"><div class="goal-fill" style="width:${Math.min(100,g.weekConcepts/5*100)}%"></div></div></div><div class="goal-row"><div class="goal-label"><span>Meta semanal · casos</span><strong>${g.weekCases}/2</strong></div><div class="goal-track"><div class="goal-fill" style="width:${Math.min(100,g.weekCases/2*100)}%"></div></div></div></article><article class="progress-card"><div class="progress-card-head"><div><div class="progress-kicker">Conquistas</div><h3>Marcos do seu percurso</h3></div><button class="btn" onclick="nav('historico')">Ver evolução</button></div><div class="achievement-grid">${ach}</div></article></section>`;
   }
   const oldDashboard=window.viewDashboard;
-  window.viewDashboard=function(){const base=typeof oldDashboard==='function'?oldDashboard.apply(this,arguments):'';return dashboardGrowth()+base};
+  window.viewDashboard=function(){
+    const base=typeof oldDashboard==='function'?oldDashboard.apply(this,arguments):'';
+    const archiveMarker='id="dailyClinicalArchive"';
+    const archiveStart=base.indexOf(archiveMarker);
+    const archiveEnd=archiveStart>=0?base.indexOf('</section>',archiveStart):-1;
+    if(archiveEnd>=0){
+      const insertAt=archiveEnd+'</section>'.length;
+      return base.slice(0,insertAt)+dashboardGrowth()+base.slice(insertAt);
+    }
+    return dashboardGrowth()+base;
+  };
 
   window.renderTopbar=function(){return `<div class="topbar"><div class="tb-search">${ICON.search}<input id="globalSearchInput" placeholder="Busque autores, conceitos, obras e casos…" onkeydown="if(event.key==='Enter')globalSearch(this.value)"><span class="global-search-hint">Enter</span></div><div class="tb-right"><button class="icon-btn" onclick="toggleTheme()">${STATE.theme==='light'?ICON.moon:ICON.sun}</button><button class="icon-btn" id="notifBtn" onclick="toggleNotifPanel()">${ICON.bell}<span class="notif-dot"></span></button><div class="avatar" onclick="nav('perfil')">${initials(STATE.userName)}</div></div></div>`};
   window.globalSearch=function(value){const q=(value||'').trim();STATE.searchQuery=q;STATE.activeFilter='Todos';logActivity('search',q,q||'Busca global');nav('consulta')};
