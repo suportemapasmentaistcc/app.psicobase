@@ -5,7 +5,7 @@ const corsHeaders = {
 };
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'deepseek/deepseek-v4-flash:free';
+const MODEL = 'inclusionai/ling-3.0-flash:free';
 const MAX_HISTORY = 12;
 
 const professorSystemPrompt = `Você é o Professor Clínico do PsicoBase.
@@ -84,11 +84,13 @@ type HistoryMessage = { role: 'user' | 'assistant'; content: string };
 
 class OpenRouterError extends Error {
   status: number;
+  errorType?: string;
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, errorType?: string) {
     super(message);
     this.name = 'OpenRouterError';
     this.status = status;
+    this.errorType = errorType;
   }
 }
 
@@ -168,12 +170,16 @@ async function callOpenRouter(
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
     const message = payload?.error?.message || payload?.message || `OpenRouter respondeu com HTTP ${response.status}.`;
+    const errorType = typeof payload?.error?.metadata?.error_type === 'string'
+      ? payload.error.metadata.error_type
+      : undefined;
     console.error('OpenRouter rejeitou a solicitação:', {
       status: response.status,
+      errorType,
       message,
       model: MODEL,
     });
-    throw new OpenRouterError(response.status, message);
+    throw new OpenRouterError(response.status, message, errorType);
   }
 
   return parseJsonPayload(payload?.choices?.[0]?.message?.content);
@@ -227,10 +233,19 @@ Deno.serve(async (req: Request) => {
     console.error('Erro no Professor Clínico:', error);
 
     if (error instanceof OpenRouterError) {
-      if (error.status === 401 || error.status === 403) {
+      if (error.status === 401 || error.errorType === 'authentication') {
         return jsonResponse({
           error: 'A chave da OpenRouter foi rejeitada. Verifique o Secret OPENROUTER_API_KEY no Supabase.',
           provider_status: error.status,
+          provider_error_type: error.errorType,
+        }, 502);
+      }
+
+      if (error.status === 403 || error.errorType === 'permission_denied') {
+        return jsonResponse({
+          error: 'A OpenRouter aceitou a autenticação, mas recusou esta solicitação por permissão ou regra de segurança da chave.',
+          provider_status: error.status,
+          provider_error_type: error.errorType,
         }, 502);
       }
 
@@ -238,6 +253,7 @@ Deno.serve(async (req: Request) => {
         return jsonResponse({
           error: `O modelo ${MODEL} não está disponível na OpenRouter neste momento.`,
           provider_status: error.status,
+          provider_error_type: error.errorType,
         }, 502);
       }
 
@@ -245,6 +261,7 @@ Deno.serve(async (req: Request) => {
         return jsonResponse({
           error: 'A OpenRouter não autorizou o uso deste modelo para a conta configurada.',
           provider_status: error.status,
+          provider_error_type: error.errorType,
         }, 502);
       }
 
@@ -252,6 +269,7 @@ Deno.serve(async (req: Request) => {
         return jsonResponse({
           error: 'O limite gratuito da OpenRouter foi atingido. Tente novamente em alguns instantes.',
           provider_status: error.status,
+          provider_error_type: error.errorType,
         }, 429);
       }
 
@@ -259,12 +277,14 @@ Deno.serve(async (req: Request) => {
         return jsonResponse({
           error: `A OpenRouter rejeitou a solicitação para o modelo ${MODEL}. Consulte os logs da Function para o motivo detalhado.`,
           provider_status: error.status,
+          provider_error_type: error.errorType,
         }, 502);
       }
 
       return jsonResponse({
         error: 'A OpenRouter está temporariamente indisponível. Tente novamente em alguns instantes.',
         provider_status: error.status,
+        provider_error_type: error.errorType,
       }, 502);
     }
 
