@@ -772,45 +772,6 @@ const CASE_DETAILS = {
   c6:{name:'Rafael Costa',code:'AC-029',image:'https://images.pexels.com/photos/6632525/pexels-photo-6632525.jpeg?auto=compress&cs=tinysrgb&w=1600',age:'38 anos',occupation:'Gerente comercial',relationship:'Casado',sessions:'3 sessões',complaint:'Rupturas abruptas no trabalho após conflitos com figuras de autoridade.',quote:'“Eu prefiro sair antes que alguém decida que não sou bom o bastante.”',history:'Relata sucessivas demissões voluntárias após críticas pontuais. O pai era rígido e valorizava desempenho. Durante conflitos, descreve sensação corporal de urgência e necessidade de “encerrar tudo imediatamente”.',session:[['Sessão 1','Justifica a demissão como ato de liberdade.'],['Sessão 2','Recorda críticas paternas diante de notas escolares abaixo do esperado.'],['Sessão 3','Diz que imaginou o analista julgando sua decisão antes mesmo de contar.']]}
 };
 
-/* Banco ampliado de dossiês fictícios. Mantém variedade suficiente para que a
-   cota Pro de até 5 casos/dia não esgote o acervo nos primeiros acessos. */
-const EXTRA_CASE_SEEDS = [
-  {title:'Medo de decepcionar e perfeccionismo acadêmico',cat:'Superego',persp:'Freudiana',level:2,age:24,job:'Estudante',rel:'Solteira',quote:'Se não for excelente, parece que não valeu nada.',text:'Uma estudante relata jornadas extensas de estudo, culpa intensa ao descansar e sensação de fracasso diante de notas que considera apenas boas.',history:'Descreve uma infância marcada por elogios ligados ao desempenho e dificuldade familiar em reconhecer limites ou cansaço.',points:['Como pensar a severidade das exigências internas?','Que função o desempenho ocupa na economia psíquica?','Como a relação com o erro pode aparecer na transferência?'],frags:['Diz que descansar antes de uma prova parece irresponsável.','Percebe que minimiza qualquer conquista poucos minutos depois de alcançá-la.']},
-  {title:'Ciúme recorrente sem evidências de traição',cat:'Vínculos',persp:'Kleiniana',level:2,age:33,job:'Arquiteta',rel:'Em relacionamento',quote:'Eu sei que não aconteceu nada, mas sinto como se já tivesse sido trocada.',text:'A paciente relata crises de ciúme diante de situações ambíguas e alterna idealização do parceiro com desconfiança intensa.',history:'Conta experiências precoces de separação e descreve relações anteriores marcadas pelo medo persistente de substituição.',points:['Como trabalhar a oscilação entre idealização e perseguição?','Que ansiedades de perda aparecem no relato?','O que pertence ao vínculo atual e o que pode estar sendo reeditado?'],frags:['Após um atraso do parceiro, imagina imediatamente abandono.','Reconhece que procura sinais de rejeição mesmo quando a relação está estável.']},
-  {title:'Dificuldade de brincar e sensação de vida automática',cat:'Self',persp:'Winnicottiana',level:2,age:40,job:'Contadora',rel:'Casada',quote:'Eu cumpro tudo, mas não sei dizer do que eu realmente gosto.',text:'Uma profissional eficiente relata viver por obrigações, com pouca espontaneidade e dificuldade de identificar desejos próprios.',history:'Aprendeu cedo a adaptar-se às necessidades da família e era descrita como uma criança que nunca dava trabalho.',points:['Como diferenciar adaptação social e falso self defensivo?','Onde aparecem sinais de gesto espontâneo?','Que lugar o brincar pode ter no processo?'],frags:['Diz que escolhe atividades pensando no que esperam dela.','Fica surpresa quando o analista pergunta o que faria sem precisar agradar ninguém.']},
-  {title:'Esquecimentos recorrentes antes de sessões difíceis',cat:'Resistência',persp:'Freudiana',level:2,age:28,job:'Publicitário',rel:'Solteiro',quote:'É curioso: justamente nesses dias eu esqueço o horário.',text:'O paciente passa a esquecer ou confundir horários depois que as sessões se aproximam de lembranças familiares carregadas de afeto.',history:'No início era pontual e engajado. Os atrasos surgiram após associar conflitos atuais a experiências de humilhação na adolescência.',points:['O que a mudança de pontualidade pode comunicar?','Como abordar resistência sem transformar o enquadre em punição?','Que relação existe entre o conteúdo emergente e os esquecimentos?'],frags:['Chega vinte minutos atrasado após uma sessão emocionalmente intensa.','Diz que talvez esteja inventando problemas ao falar da família.']},
-  {title:'Necessidade constante de aprovação do analista',cat:'Transferência',persp:'Lacaniana',level:3,age:30,job:'Jornalista',rel:'Solteira',quote:'Eu queria saber se você acha que eu estou fazendo isso certo.',text:'A analisanda solicita frequentemente validação sobre escolhas pessoais e tenta antecipar qual resposta seria considerada correta pelo analista.',history:'Relata ter crescido buscando sinais discretos de aprovação de figuras de autoridade e sentir grande desconforto diante de respostas ambíguas.',points:['Como a demanda de aprovação se articula à transferência?','O que pode acontecer se o analista ocupar diretamente o lugar de quem sabe?','Como abrir espaço para a questão do desejo?'],frags:['Pergunta três vezes se tomou a decisão correta.','Diante do silêncio, diz temer ter decepcionado o analista.']},
-  {title:'Sono excessivo diante de decisões importantes',cat:'Defesas',persp:'Freudiana',level:2,age:35,job:'Engenheiro',rel:'Casado',quote:'Quando preciso decidir alguma coisa, parece que meu corpo desliga.',text:'O paciente relata sonolência e adiamento justamente quando precisa tomar decisões que podem alterar sua trajetória profissional.',history:'Associa escolhas importantes ao medo de perder segurança e de ser responsabilizado por consequências futuras.',points:['Que função defensiva o adiamento pode assumir?','Que conflitos aparecem em torno da escolha?','Como evitar reduzir o sintoma a uma explicação única?'],frags:['Adormece no sofá antes de responder a uma proposta de trabalho.','Associa decisão à frase paterna de que escolhas erradas cobram um preço.']},
-  {title:'Raiva intensa diante de pequenas frustrações',cat:'Agressividade',persp:'Kleiniana',level:3,age:37,job:'Empresário',rel:'Divorciado',quote:'Na hora parece que a pessoa inteira vira minha inimiga.',text:'Pequenas frustrações relacionais desencadeiam explosões de raiva seguidas de culpa e tentativas urgentes de reparação.',history:'O paciente reconhece dificuldade em manter simultaneamente aspectos bons e frustrantes de uma mesma pessoa quando se sente contrariado.',points:['Como pensar cisão e integração do objeto?','Que lugar ocupa a culpa depois das explosões?','Quais movimentos de reparação aparecem?'],frags:['Após uma crítica, descreve a ex-companheira como completamente hostil.','Na sessão seguinte sente culpa e enumera qualidades que antes não conseguia reconhecer.']},
-  {title:'Ansiedade ao receber cuidado de outras pessoas',cat:'Vínculos',persp:'Winnicottiana',level:2,age:32,job:'Fisioterapeuta',rel:'Em relacionamento',quote:'É mais fácil cuidar do que deixar alguém cuidar de mim.',text:'A paciente sente desconforto quando recebe ajuda e tende a assumir o papel de cuidadora em todos os vínculos.',history:'Cresceu em contexto de doença crônica de um familiar e aprendeu a perceber necessidades alheias antes das próprias.',points:['Como pensar dependência e possibilidade de receber cuidado?','Que adaptações foram necessárias no desenvolvimento?','Como essa posição pode reaparecer no setting?'],frags:['Tenta tranquilizar o analista ao falar de uma semana difícil.','Diz sentir vergonha quando precisa pedir ajuda.']},
-  {title:'Relacionamentos iniciados logo após separações',cat:'Repetição',persp:'Freudiana',level:2,age:27,job:'Fotógrafo',rel:'Solteiro',quote:'Eu termino uma relação e em poucos dias já estou dentro de outra.',text:'O paciente relata sucessão de relacionamentos com pouco intervalo para elaboração das separações e intenso desconforto quando fica sozinho.',history:'Associa solidão a uma sensação antiga de não ter importância para ninguém e evita permanecer com sentimentos de perda.',points:['Que função pode ter a substituição rápida do objeto?','O que deixa de ser elaborado entre uma relação e outra?','Como repetição e luto podem se articular?'],frags:['Conta o término anterior apenas depois de apresentar a nova relação.','Ao imaginar um mês sozinho, relata sensação de vazio e urgência.']},
-  {title:'Procrastinação próxima à conclusão de projetos',cat:'Repetição',persp:'Lacaniana',level:3,age:39,job:'Pesquisadora',rel:'Casada',quote:'Eu avanço quase até o fim e então tudo trava.',text:'Uma pesquisadora produz com consistência até as etapas finais, quando passa a adiar entregas e a revisar detalhes indefinidamente.',history:'Relata que concluir algo a expõe ao julgamento público e encerra a possibilidade de imaginar uma versão perfeita ainda por vir.',points:['O que muda subjetivamente quando o projeto precisa ser concluído?','Como desejo e demanda do Outro aparecem no impasse?','Que ganho pode existir em manter a obra inacabada?'],frags:['Adia o envio de um artigo pronto por pequenas correções.','Diz que enquanto não entrega ainda pode imaginar que seria perfeito.']},
-  {title:'Sentimento de impostora após promoção profissional',cat:'Narcisismo',persp:'Freudiana',level:2,age:34,job:'Médica',rel:'Casada',quote:'Agora vão finalmente descobrir que eu não sou tudo isso.',text:'Após ser promovida, a paciente passa a interpretar reconhecimento como aumento do risco de ser desmascarada e intensifica a autocrítica.',history:'Na família, conquistas eram rapidamente acompanhadas por lembranças de que sempre havia alguém melhor.',points:['Como ideal do eu e autoestima aparecem no relato?','Por que o reconhecimento aumenta a angústia?','Que diferença existe entre limite real e ataque narcísico a si mesma?'],frags:['Recebe elogio da equipe e passa a listar falhas próprias.','Pergunta por que é mais confortável ser subestimada do que reconhecida.']},
-  {title:'Controle rígido da rotina após experiência de perda',cat:'Angústia',persp:'Freudiana',level:2,age:45,job:'Administrador',rel:'Viúvo',quote:'Se tudo estiver no lugar, talvez nada saia do controle de novo.',text:'Depois de uma perda significativa, o paciente organiza horários e tarefas de forma cada vez mais rígida e sofre diante de imprevistos mínimos.',history:'Reconhece que a organização lhe oferece sensação temporária de segurança, embora limite encontros e atividades espontâneas.',points:['Como controle e desamparo podem se articular?','Que afetos ficam menos acessíveis quando a rotina ocupa todo o espaço?','Como escutar a função do comportamento antes de interpretá-lo?'],frags:['Reorganiza toda a semana depois de um compromisso cancelado.','Associa imprevisto à experiência de receber uma notícia de perda.']},
-  {title:'Dificuldade de separar-se da opinião paterna',cat:'Separação',persp:'Lacaniana',level:3,age:26,job:'Advogado',rel:'Solteiro',quote:'Antes de decidir, escuto na cabeça o que meu pai diria.',text:'O paciente consegue formular desejos próprios, mas recua quando imagina a desaprovação paterna, mesmo sem consultar o pai.',history:'A escolha profissional seguiu expectativas familiares. Pela primeira vez considera uma mudança de área que descreve como verdadeiramente sua.',points:['Como distinguir desejo e identificação às expectativas familiares?','Que lugar a palavra paterna ocupa mesmo na ausência do pai?','O que está em jogo na possibilidade de uma escolha própria?'],frags:['Fala animadamente de uma nova área e logo enumera críticas que o pai faria.','Percebe que nunca perguntou ao pai se ele realmente pensaria tudo aquilo.']},
-  {title:'Medo de abandono após nascimento do primeiro filho',cat:'Vínculos',persp:'Kleiniana',level:2,age:31,job:'Professora',rel:'Casada',quote:'Quando ele cuida do bebê eu fico feliz e, ao mesmo tempo, sinto que perdi meu lugar.',text:'Após o nascimento do filho, a paciente relata ciúme, culpa e medo de perder espaço na relação conjugal apesar de reconhecer o apoio do parceiro.',history:'A maternidade reativa lembranças de competição por atenção na família de origem e sentimentos ambivalentes que ela considera inaceitáveis.',points:['Como acolher ambivalência sem moralizá-la?','Que ansiedades de perda e rivalidade reaparecem?','Como culpa e reparação podem ser pensadas?'],frags:['Chora ao admitir irritação quando o parceiro acalma o bebê.','Diz que uma boa mãe não deveria sentir ciúme.']},
-  {title:'Humor constante para evitar temas dolorosos',cat:'Defesas',persp:'Freudiana',level:2,age:41,job:'Vendedor',rel:'Casado',quote:'Se eu fizer todo mundo rir, ninguém percebe que a coisa apertou.',text:'O paciente transforma relatos dolorosos em piadas e muda rapidamente de assunto quando o afeto começa a aparecer.',history:'É conhecido na família como aquele que mantém o ambiente leve e relata desconforto quando alguém demonstra tristeza diante dele.',points:['Qual função o humor cumpre em cada momento?','Quando o recurso criativo se torna evitamento afetivo?','Como acompanhar o afeto sem retirar bruscamente a defesa?'],frags:['Ri ao narrar uma hospitalização grave e logo pergunta se a história foi engraçada.','Fica em silêncio quando o analista nota a mudança de tom.']},
-  {title:'Sensação de vazio nos fins de semana',cat:'Self',persp:'Winnicottiana',level:2,age:29,job:'Analista financeiro',rel:'Solteiro',quote:'Durante a semana eu funciono; no domingo parece que eu desapareço.',text:'Sem tarefas profissionais, o paciente relata vazio, tédio intenso e dificuldade de iniciar atividades por prazer.',history:'Sua rotina sempre foi altamente estruturada por estudo e trabalho, áreas nas quais recebe reconhecimento objetivo.',points:['Que diferença há entre funcionar e sentir-se vivo?','Onde aparecem experiências de espontaneidade?','Como o setting pode favorecer exploração sem preencher o vazio pelo paciente?'],frags:['Lista metas profissionais quando perguntado sobre lazer.','Recorda gostar de desenhar antes de começar a tratar hobbies como perda de tempo.']},
-  {title:'Conflitos repetidos com figuras de autoridade',cat:'Transferência',persp:'Freudiana',level:3,age:36,job:'Designer',rel:'Em relacionamento',quote:'Todo chefe começa bem e depois vira alguém que quer me controlar.',text:'A paciente relata sequência de conflitos intensos com superiores, alternando busca de reconhecimento e sensação de perseguição.',history:'Descreve uma relação ambivalente com uma mãe exigente, de quem buscava aprovação e contra quem precisava afirmar autonomia.',points:['Que padrão relacional se repete com figuras de autoridade?','Como reconhecimento e controle se misturam?','De que modo algo semelhante pode emergir com o analista?'],frags:['Idealiza uma nova chefia e semanas depois sente-se excessivamente vigiada.','Pergunta se o analista também acha que ela resiste a qualquer orientação.']},
-  {title:'Culpa ao estabelecer limites com a família',cat:'Superego',persp:'Freudiana',level:2,age:43,job:'Assistente social',rel:'Divorciada',quote:'Dizer não parece uma prova de que eu sou egoísta.',text:'A paciente atende pedidos familiares mesmo quando está exausta e experimenta culpa intensa ao tentar estabelecer limites.',history:'Foi colocada precocemente na posição de mediadora de conflitos e recebeu reconhecimento por ser a pessoa responsável da família.',points:['Que ideais sustentam a culpa?','Como diferenciar cuidado e submissão às exigências internas?','O que o não desperta na fantasia da paciente?'],frags:['Cancela um compromisso próprio para resolver um problema do irmão.','Ao ensaiar um limite, imagina toda a família decepcionada.']},
-  {title:'Busca de relações intensas e rompimentos súbitos',cat:'Vínculos',persp:'Kleiniana',level:3,age:25,job:'Estilista',rel:'Solteira',quote:'Ou eu sinto tudo ou parece que não sinto nada.',text:'A paciente se envolve rapidamente, idealiza novos vínculos e rompe de modo abrupto depois das primeiras frustrações.',history:'Descreve dificuldade em sustentar simultaneamente carinho e raiva pela mesma pessoa, especialmente quando teme rejeição.',points:['Como pensar integração de aspectos bons e frustrantes do objeto?','Que angústias acompanham a passagem da idealização à ruptura?','Como manter hipóteses abertas sem rotular a paciente?'],frags:['Chama uma nova amiga de única pessoa que a compreende.','Após uma discordância, afirma não querer vê-la nunca mais.']},
-  {title:'Bloqueio criativo após exposição pública',cat:'Narcisismo',persp:'Winnicottiana',level:2,age:38,job:'Ilustradora',rel:'Em relacionamento',quote:'Depois que começaram a olhar, eu parei de saber o que queria criar.',text:'Uma artista relata perda de espontaneidade depois que seu trabalho recebeu grande visibilidade e passou a antecipar a reação do público em cada escolha.',history:'Antes produzia de forma experimental; com o reconhecimento, começou a repetir fórmulas que imagina serem esperadas.',points:['Como olhar externo e espontaneidade se relacionam?','Que formas de adaptação surgiram com o reconhecimento?','Como recuperar um espaço de experimentação sem idealizar o passado?'],frags:['Mostra trabalhos antigos e diz que pareciam mais seus.','Percebe que pensa em métricas antes mesmo de começar um desenho.']},
-  {title:'Medo de envelhecer e perda de reconhecimento',cat:'Narcisismo',persp:'Freudiana',level:2,age:52,job:'Executiva',rel:'Casada',quote:'Tenho medo de me tornar invisível.',text:'Mudanças corporais e profissionais associadas à idade despertam preocupação intensa com perda de valor e visibilidade.',history:'Construiu grande parte da identidade em torno de desempenho, autonomia e reconhecimento externo.',points:['Que perdas reais e narcísicas estão sendo elaboradas?','Como diferenciar luto pelas mudanças e idealização da juventude?','Que outras fontes de investimento começam a aparecer?'],frags:['Compara-se diariamente a colegas mais jovens.','Reconhece satisfação em atividades que antes considerava pouco produtivas.']},
-  {title:'Inibição da fala em reuniões apesar de domínio técnico',cat:'Inibição',persp:'Freudiana',level:2,age:30,job:'Engenheira',rel:'Solteira',quote:'Eu sei a resposta, mas na hora minha voz simplesmente some.',text:'A paciente domina os temas discutidos no trabalho, mas evita falar diante do grupo e depois se critica por ter permanecido em silêncio.',history:'Recorda situações escolares em que erros diante da turma eram recebidos com comentários humilhantes de um professor.',points:['Que relação existe entre exposição e expectativa de humilhação?','Como a inibição protege e ao mesmo tempo restringe?','Que elementos atuais contradizem a cena antecipada?'],frags:['Prepara uma contribuição e desiste segundos antes de falar.','Associa a mesa de reunião à sensação de estar novamente diante da turma.']},
-  {title:'Sonhos recorrentes com portas que não fecham',cat:'Sonhos',persp:'Freudiana',level:2,age:35,job:'Psicóloga',rel:'Casada',quote:'No sonho eu tento fechar a porta, mas sempre fica uma fresta.',text:'Durante um período de mudanças familiares, a paciente passa a relatar sonhos repetidos em que tenta proteger um espaço sem conseguir fechá-lo completamente.',history:'Está reorganizando limites com familiares que costumam entrar em sua rotina sem combinar e sente culpa ao pedir privacidade.',points:['Quais associações pessoais a imagem da porta produz?','Como evitar interpretar um símbolo de forma universal?','Que conflitos atuais podem ser trabalhados a partir do sonho?'],frags:['Associa a porta ao quarto da adolescência, que não tinha chave.','Percebe que no sonho nunca chama ninguém para ajudá-la.']},
-  {title:'Dificuldade de receber elogios sem desqualificá-los',cat:'Narcisismo',persp:'Freudiana',level:1,age:28,job:'Nutricionista',rel:'Em relacionamento',quote:'Quando me elogiam, penso que estão sendo gentis, não sinceros.',text:'A paciente responde a elogios enumerando defeitos, atribuindo êxitos à sorte e preservando uma imagem de insuficiência.',history:'Relata que, em casa, demonstrar orgulho pelas próprias conquistas era frequentemente chamado de arrogância.',points:['Como a autodesqualificação protege uma determinada imagem de si?','Que conflito existe entre reconhecimento e vergonha?','Como o elogio do analista poderia ser recebido?'],frags:['Recebe uma promoção e explica por que qualquer colega faria melhor.','Diz sentir vergonha apenas de imaginar dizer que está orgulhosa.']}
-];
-
-EXTRA_CASE_SEEDS.forEach((seed,index)=>{
-  const n=index+7,id=`c${n}`,code=`AC-${String(n+23).padStart(3,'0')}`;
-  CASES.push({id,title:seed.title,cat:seed.cat,level:seed.level,duration:`${10+(index%9)} min`,status:'new',persp:seed.persp,text:seed.text,points:seed.points});
-  CASE_DETAILS[id]={
-    name:`Paciente ${code}`,code,image:CASE_DETAILS[`c${(index%6)+1}`].image,age:`${seed.age} anos`,occupation:seed.job,relationship:seed.rel,sessions:'4 sessões',
-    complaint:seed.text,quote:`“${seed.quote}”`,history:seed.history,
-    session:[['Sessão 1',seed.frags[0]],['Sessão 3',seed.frags[1]],['Sessão 4','O material permanece em elaboração; o exercício propõe sustentar hipóteses sem fechá-las como diagnóstico.']]
-  };
-});
-
 const NOTIFICATIONS = [];
 
 /* ============ STATE ============ */
@@ -2730,11 +2691,6 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
     return usage;
   }
   function usedToday(){return readDailyUsage().count}
-  function syncDailyUsage(count){
-    const usage={date:dateKey(),count:Math.max(0,Number(count)||0)};
-    try{localStorage.setItem(usageKey,JSON.stringify(usage))}catch{}
-    return usage.count;
-  }
   function cooldownActive(){return usedToday()>=caseDailyLimit()}
   function cooldownRemaining(){
     if(!cooldownActive())return 0;
@@ -2795,9 +2751,7 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
   function segmentMarkup(segmentIndex,selectedId,drawn){
     const opened=getOpened();
     const positions=[1,4,7,10,13,16];
-    const selected=CASES.find(c=>c.id===selectedId);
-    const visibleCases=[selected,...CASES.filter(c=>c.id!==selectedId)].filter(Boolean).slice(0,positions.length);
-    const caseAt={};visibleCases.forEach((c,i)=>caseAt[positions[i]]=c);
+    const caseAt={};CASES.forEach((c,i)=>caseAt[positions[i%positions.length]]=c);
     return `<div class="archive-segment" data-segment="${segmentIndex}">${Array.from({length:SLOT_COUNT},(_,slot)=>{
       const c=caseAt[slot];
       if(!c)return `<article class="archive-file is-locked is-decoy" data-slot="${segmentIndex}-${slot}" onclick="toast('Este caso clínico ainda está bloqueado.')"><span class="af-code">AC-${String(segmentIndex*SLOT_COUNT+slot+41).padStart(3,'0')}</span><div class="af-title">CASO CLÍNICO</div><span class="af-label">BLOQUEADO</span><span class="af-open">◷</span></article>`;
@@ -2837,29 +2791,13 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
     })[0];
     if(target)openDailyCaseArchive(archive,target);
   };
-  window.openDailyCaseArchive=async function(el,folderEl){
+  window.openDailyCaseArchive=function(el,folderEl){
     if(!el||el.classList.contains('opening')||el.classList.contains('is-drawing'))return;
     const id=folderEl?.dataset?.case;if(!id){toast('Este caso clínico ainda está bloqueado.');return}
     const opened=getOpened(),wasAvailable=folderEl.classList.contains('is-available');
     const allowed=wasAvailable||opened.has(id)||hasCompleted(id);
     if(!allowed){toast('Este caso clínico ainda está bloqueado.');return}
-    if(wasAvailable){
-      if(typeof window.consumeFeatureQuota!=='function'){toast('Não foi possível validar seu limite agora. Tente novamente.');return}
-      folderEl.style.pointerEvents='none';
-      try{
-        const quota=await window.consumeFeatureQuota('case_dossier',1);
-        if(Number.isFinite(Number(quota?.used)))syncDailyUsage(quota.used);
-        if(!quota?.allowed){
-          folderEl.style.pointerEvents='';
-          if(window.isPremiumAccess?.()===true)toast('Você já abriu os 5 dossiês disponíveis no Pro hoje. Amanhã a cota será renovada.');
-          else{toast('Você já abriu o dossiê disponível no Free hoje.');window.openSubscriptionModal?.('Até 5 dossiês por dia');}
-          window.render();return;
-        }
-      }catch(error){
-        console.error('Erro ao validar cota do dossiê:',error);folderEl.style.pointerEvents='';
-        toast(error?.message||'Não foi possível validar seu limite agora. Tente novamente.');return;
-      }
-    }
+    if(wasAvailable)startDrawCooldown();
     markCaseOpened(id);const chosen=CASES.find(c=>c.id===id);if(!chosen)return;
     STATE.lastDailyCase=chosen.id;folderEl.classList.remove('is-available');folderEl.classList.add('is-opened','selected');el.classList.add('opening');
     setTimeout(()=>nav('case-detail',chosen.id),760);
@@ -3693,7 +3631,7 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
     if(existing)return existing;
     const fullName=(preferredName||user.user_metadata?.full_name||user.email?.split('@')[0]||'Usuário').trim().slice(0,80);
     const trialEndsAt=new Date(Date.now()+3*24*60*60*1000).toISOString();
-    const payload={id:user.id,email:(user.email||'').trim().toLowerCase()||null,full_name:fullName,access_status:'trial',trial_ends_at:trialEndsAt};
+    const payload={id:user.id,full_name:fullName,access_status:'trial',trial_ends_at:trialEndsAt};
     const {data,error}=await client.from('profiles').insert(payload).select('*').single();
     if(error){
       /* Se duas restaurações de sessão tentarem criar o perfil ao mesmo tempo,
@@ -3962,19 +3900,6 @@ window.maybeShowFreeUpgradeNudge=function(){
   window.openSubscriptionModal?.();
 };
 
-let lastAutomaticPlanRefresh=0;
-async function refreshPlanAfterCheckout(){
-  if(!window.AUTH?.user||Date.now()-lastAutomaticPlanRefresh<5000)return;
-  lastAutomaticPlanRefresh=Date.now();
-  const before=String(window.AUTH?.reason||'');
-  try{
-    await window.refreshAccessProfile?.();
-    if(before!==String(window.AUTH?.reason||''))window.render?.();
-  }catch(error){console.warn('Não foi possível atualizar o plano em segundo plano.',error)}
-}
-window.addEventListener('focus',refreshPlanAfterCheckout);
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshPlanAfterCheckout()});
-
 
 
 window.getFreshSupabaseSession = async function(){
@@ -4009,21 +3934,9 @@ window.invokeAuthenticatedEdgeFunction = async function(functionName,body){
   const payload=await response.json().catch(()=>({}));
   if(!response.ok){
     const message=payload?.error||payload?.message||(response.status===401?'Sessão não autorizada. Entre novamente e tente outra vez.':'Não foi possível acessar o serviço agora.');
-    const error=new Error(message);error.status=response.status;error.code=payload?.code||'';error.quota=payload?.quota||null;throw error;
+    const error=new Error(message);error.status=response.status;throw error;
   }
   return payload;
-};
-
-window.consumeFeatureQuota=async function(feature,requested=1){
-  const session=await getFreshSupabaseSession();
-  if(!session?.user?.id)throw new Error('Entre novamente para continuar.');
-  const {data,error}=await window.supabaseClient.rpc('consume_daily_quota',{
-    p_feature:String(feature||''),
-    p_requested:Math.max(1,Number(requested)||1),
-    p_consume:true
-  });
-  if(error){console.error('Erro ao validar cota:',error);throw new Error('Não foi possível validar seu plano agora. Tente novamente.');}
-  return data||{allowed:false,reason:'invalid_response'};
 };
 
 window.getLearningMemory = function(){
@@ -4109,11 +4022,7 @@ window.generateClinicalProfessorSession = async function(){
       ${pitfalls.length?`<section class="professor-section"><h4>Erros frequentes</h4><ul>${pitfalls.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul></section>`:''}
       <section class="professor-section"><h4>Referências utilizadas</h4>${refs.map(r=>`<div class="professor-reference">${escapeHtml(r)}</div>`).join('')||'<p>Nenhuma referência segura foi localizada para este tema.</p>'}<p style="font-size:11px;color:var(--muted);margin-top:12px">A plataforma não reproduz livros integralmente. A sessão é construída a partir de uma base curada de conceitos, relações teóricas e referências bibliográficas.</p></section>
     </div>`;
-  }catch(err){
-    console.error(err);
-    if(err?.code==='FREE_LIMIT_REACHED'||err?.code==='FREE_PER_REQUEST_LIMIT'||err?.code==='PREMIUM_REQUIRED')window.openSubscriptionModal?.('Professor Clínico ilimitado');
-    if(status){status.className='question-generator-status error';status.textContent=err.message||'Falha ao preparar a sessão.';}
-  }
+  }catch(err){console.error(err);if(status){status.className='question-generator-status error';status.textContent=err.message||'Falha ao preparar a sessão.';}}
   finally{if(button){button.disabled=false;button.innerHTML=`${ICON.plus} Criar sessão de estudo`;}}
 };
 
@@ -4142,7 +4051,6 @@ window.generateDiscursiveQuestions = async function(){
     if(results) results.innerHTML=questions.map((q,i)=>`<article class="generated-question"><div class="generated-question-head"><div><div class="generated-question-number">Questão ${i+1}</div><h4>${escapeHtml(q.question||'')}</h4></div><span class="author-tag">${escapeHtml(q.difficulty||level)}</span></div>${q.expected_points?.length?`<div class="generated-question-section"><strong>Pontos esperados</strong><ul>${q.expected_points.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul></div>`:''}${q.answer_guide?`<div class="generated-question-section"><strong>Orientação de resposta</strong><p>${escapeHtml(q.answer_guide)}</p></div>`:''}${q.references?.length?`<div class="generated-question-section"><strong>Referências sugeridas</strong>${q.references.map(r=>`<div class="question-reference">${escapeHtml(r)}</div>`).join('')}</div>`:''}</article>`).join('');
   }catch(err){
     console.error(err);
-    if(err?.code==='FREE_LIMIT_REACHED'||err?.code==='FREE_PER_REQUEST_LIMIT'||err?.code==='PREMIUM_REQUIRED')window.openSubscriptionModal?.('Questões Discursivas ilimitadas');
     if(status){status.className='question-generator-status error';status.textContent=err.message||'Falha ao gerar as questões.';}
   }finally{
     if(button){button.disabled=false;button.innerHTML=`${ICON.plus} Gerar questões fundamentadas`;}
