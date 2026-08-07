@@ -80,6 +80,58 @@ Retorne somente um objeto JSON válido, sem markdown e sem texto antes ou depois
   ]
 }`;
 
+const caseFeedbackSystemPrompt = `Você é o avaliador educacional de Casos Clínicos do PsicoBase.
+
+Sua função é analisar a resposta de um estudante a um caso clínico INTEIRAMENTE FICTÍCIO e devolver uma orientação didática de raciocínio psicanalítico.
+
+REGRAS
+- Responda em português do Brasil, com precisão e linguagem acessível.
+- Trate todo o material do caso como simulação educacional. Não faça diagnóstico de pessoa real e não substitua supervisão clínica.
+- Diferencie sempre observação, inferência e hipótese. Evite certezas diagnósticas e rótulos sobre o paciente fictício.
+- Avalie se o estudante sustenta a hipótese em falas, comportamentos e fragmentos efetivamente presentes no caso.
+- Aponte primeiro o que há de aproveitável no raciocínio e depois o que precisa ser refinado.
+- Quando pertinente, articule Freud, Lacan, Melanie Klein, Winnicott, Bion, Ferenczi ou Jung, respeitando diferenças entre escolas.
+- Nunca invente conceitos, obras, citações, páginas ou posições teóricas.
+- Se a resposta usar linguagem depreciativa, converta o problema em observações clínicas sem repetir ou validar o julgamento.
+- Na etapa final, avalie se houve reelaboração real depois da primeira devolutiva.
+- Não diga que é uma IA. Você pertence ao PsicoBase.
+- O campo feedback deve ser um texto coeso, didático e suficientemente desenvolvido, sem markdown.
+
+Retorne somente JSON válido, sem texto antes ou depois, neste formato:
+{
+  "feedback": "devolutiva individualizada sobre o raciocínio do estudante",
+  "supervision_question": "uma pergunta que mantenha a hipótese aberta e indique o próximo ponto de investigação",
+  "references": ["autor e obra ou referência teórica geral, somente quando segura"]
+}`;
+
+const supervisionSystemPrompt = `Você é o Supervisor Clínico educacional do PsicoBase.
+
+Sua função é ajudar um estudante ou profissional a ORGANIZAR material clínico previamente desidentificado para reflexão e supervisão psicanalítica. Você não substitui um supervisor humano, não prescreve tratamento e não emite diagnóstico fechado.
+
+REGRAS
+- Responda em português do Brasil.
+- Trabalhe somente com o material fornecido e diferencie observações, inferências e hipóteses.
+- Formule hipóteses como possibilidades a investigar, nunca como certezas sobre o paciente.
+- Priorize Freud, Lacan, Melanie Klein, Winnicott, Bion, Ferenczi e Jung quando pertinentes, respeitando divergências teóricas.
+- Nunca invente conceitos, fatos do caso, obras, citações, páginas ou dados bibliográficos.
+- Dê atenção à transferência, contratransferência, resistência, repetição, enquadre, manejo, afetos e posição do analista apenas quando houver elementos para isso.
+- Aponte quais dados ainda faltam antes de sustentar uma hipótese.
+- Não recomende condutas médicas, medicação ou decisões de urgência. Se o material mencionar risco imediato, violência, suicídio ou emergência, sinalize que isso exige protocolo profissional e suporte presencial apropriado.
+- Não diga que é uma IA. Você pertence ao PsicoBase.
+- Não reproduza dados identificáveis. O caso deve permanecer anônimo.
+
+Retorne somente JSON válido, sem markdown e sem texto antes ou depois, neste formato:
+{
+  "summary": "síntese neutra do material clínico",
+  "observations": ["observação relevante presente no material"],
+  "hypotheses": ["hipótese clínica aberta e não diagnóstica"],
+  "theoretical_axes": ["eixo teórico pertinente e por quê"],
+  "supervision_questions": ["pergunta útil para levar à supervisão"],
+  "missing_information": ["dado que ainda seria importante compreender"],
+  "cautions": ["limite, risco de interpretação ou cuidado ético"],
+  "references": ["autor e obra ou referência teórica geral, somente quando segura"]
+}`;
+
 type HistoryMessage = { role: 'user' | 'assistant'; content: string };
 
 class OpenRouterError extends Error {
@@ -92,6 +144,88 @@ class OpenRouterError extends Error {
     this.status = status;
     this.errorType = errorType;
   }
+}
+
+class QuotaServiceError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = 'QuotaServiceError';
+    this.status = status;
+  }
+}
+
+function getSupabasePublicKey() {
+  const legacy = Deno.env.get('SUPABASE_ANON_KEY');
+  if (legacy) return legacy;
+  try {
+    const keys = JSON.parse(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS') || '{}');
+    return typeof keys?.default === 'string' ? keys.default : '';
+  } catch {
+    return '';
+  }
+}
+
+async function quotaRequest(
+  authorization: string,
+  feature: 'professor' | 'questions' | 'supervision',
+  requested = 1,
+  consume = true,
+) {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+  const apiKey = getSupabasePublicKey();
+  if (!supabaseUrl || !apiKey) throw new QuotaServiceError(503, 'Controle de acesso temporariamente indisponível.');
+
+  const response = await fetch(`${supabaseUrl}/rest/v1/rpc/consume_daily_quota`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': apiKey,
+      'Authorization': authorization,
+    },
+    body: JSON.stringify({ p_feature: feature, p_requested: requested, p_consume: consume }),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    console.error('Falha ao validar cota:', { status: response.status, feature, payload });
+    if (response.status === 401 || response.status === 403) {
+      throw new QuotaServiceError(401, 'Sua sessão expirou. Entre novamente para continuar.');
+    }
+    throw new QuotaServiceError(503, 'Não foi possível validar seu plano agora. Tente novamente.');
+  }
+  return payload as {
+    allowed?: boolean;
+    is_pro?: boolean;
+    limit?: number | null;
+    used?: number | null;
+    remaining?: number | null;
+    reason?: string;
+  };
+}
+
+function quotaDeniedResponse(quota: { reason?: string; limit?: number | null; used?: number | null }, feature: string) {
+  if (quota.reason === 'premium_required') {
+    return jsonResponse({
+      error: 'Este recurso faz parte do PsicoBase Pro.',
+      code: 'PREMIUM_REQUIRED',
+      feature,
+      quota,
+    }, 403);
+  }
+  if (quota.reason === 'per_request_limit') {
+    return jsonResponse({
+      error: 'No plano Free você pode gerar até 5 questões por vez.',
+      code: 'FREE_PER_REQUEST_LIMIT',
+      feature,
+      quota,
+    }, 429);
+  }
+  return jsonResponse({
+    error: 'Você atingiu o limite diário do plano Free. No Pro, este recurso é ilimitado.',
+    code: 'FREE_LIMIT_REACHED',
+    feature,
+    quota,
+  }, 429);
 }
 
 function jsonResponse(body: unknown, status = 200) {
@@ -202,13 +336,21 @@ Deno.serve(async (req: Request) => {
 
   try {
     const body = await req.json();
-    const mode = body?.mode === 'questions' ? 'questions' : 'professor';
+    const mode = body?.mode === 'questions'
+      ? 'questions'
+      : body?.mode === 'case_feedback'
+        ? 'case_feedback'
+        : body?.mode === 'supervision'
+          ? 'supervision'
+        : 'professor';
     const topic = typeof body?.topic === 'string' ? body.topic.trim().slice(0, 1200) : '';
     const level = typeof body?.level === 'string' ? body.level.trim().slice(0, 80) : 'Intermediário';
     if (!topic) return jsonResponse({ error: 'Informe o tema ou a dúvida da sessão.' }, 400);
 
     if (mode === 'questions') {
       const count = Math.min(10, Math.max(1, Number(body?.count) || 5));
+      const available = await quotaRequest(authorization, 'questions', count, false);
+      if (!available.allowed) return quotaDeniedResponse(available, 'questions');
       const focus = typeof body?.focus === 'string' ? body.focus.trim().slice(0, 120) : 'Compreensão teórica';
       const messages: Array<{ role: 'system' | 'user'; content: string }> = [
         { role: 'system', content: questionsSystemPrompt },
@@ -217,10 +359,86 @@ Deno.serve(async (req: Request) => {
       const payload = await callOpenRouter(apiKey, messages);
       const questions = Array.isArray(payload?.questions) ? payload.questions.slice(0, count) : [];
       if (!questions.length) throw new Error('O modelo não retornou questões válidas.');
-      return jsonResponse({ questions, model: MODEL });
+      const consumed = await quotaRequest(authorization, 'questions', count, true);
+      if (!consumed.allowed) return quotaDeniedResponse(consumed, 'questions');
+      return jsonResponse({ questions, model: MODEL, quota: consumed });
+    }
+
+    if (mode === 'case_feedback') {
+      const stage = body?.stage === 'final' ? 'final' : 'initial';
+      const caseContext = typeof body?.case_context === 'string' ? body.case_context.trim().slice(0, 12000) : '';
+      const answer = typeof body?.answer === 'string' ? body.answer.trim().slice(0, 8000) : '';
+      const previousAnswer = typeof body?.previous_answer === 'string' ? body.previous_answer.trim().slice(0, 8000) : '';
+      const previousFeedback = typeof body?.previous_feedback === 'string' ? body.previous_feedback.trim().slice(0, 8000) : '';
+      if (!caseContext || !answer) return jsonResponse({ error: 'O caso e a resposta são obrigatórios para a análise.' }, 400);
+
+      const stageInstruction = stage === 'final'
+        ? `Esta é a ETAPA FINAL. Compare a elaboração atual com a hipótese inicial e com a primeira devolutiva. Avalie o que foi realmente reelaborado, o que ficou melhor fundamentado e o que ainda permanece como hipótese aberta.\n\nHIPÓTESE INICIAL:\n${previousAnswer || 'Não informada'}\n\nPRIMEIRA DEVOLUTIVA:\n${previousFeedback || 'Não informada'}`
+        : 'Esta é a ETAPA INICIAL. Analise a primeira hipótese do estudante e ofereça uma devolutiva que o ajude a aprofundá-la sem entregar uma conclusão fechada.';
+
+      const messages: Array<{ role: 'system' | 'user'; content: string }> = [
+        { role: 'system', content: caseFeedbackSystemPrompt },
+        { role: 'user', content: `${stageInstruction}\n\nCASO FICTÍCIO:\n${caseContext}\n\nRESPOSTA DO ESTUDANTE:\n${answer}` },
+      ];
+      const analysis = await callOpenRouter(apiKey, messages);
+      if (typeof analysis?.feedback !== 'string' || !analysis.feedback.trim()) {
+        throw new Error('O modelo não retornou uma devolutiva clínica válida.');
+      }
+      return jsonResponse({
+        analysis: {
+          feedback: analysis.feedback.trim(),
+          supervision_question: typeof analysis?.supervision_question === 'string' ? analysis.supervision_question.trim() : '',
+          references: Array.isArray(analysis?.references) ? analysis.references.slice(0, 5) : [],
+        },
+        model: MODEL,
+      });
+    }
+
+    if (mode === 'supervision') {
+      const entitlement = await quotaRequest(authorization, 'supervision', 1, false);
+      if (!entitlement.allowed) return quotaDeniedResponse(entitlement, 'supervision');
+      const context = typeof body?.context === 'string' ? body.context.trim().slice(0, 14000) : '';
+      const doubts = typeof body?.doubts === 'string' ? body.doubts.trim().slice(0, 5000) : '';
+      const concepts = typeof body?.concepts === 'string' ? body.concepts.trim().slice(0, 2000) : '';
+      if (context.length < 40) return jsonResponse({ error: 'Descreva um pouco mais o contexto clínico antes de preparar a supervisão.' }, 400);
+
+      const combined = `${context}\n${doubts}\n${concepts}`;
+      const hasEmail = /\b[^\s@]+@[^\s@]+\.[^\s@]+\b/i.test(combined);
+      const hasCpf = /\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/.test(combined);
+      const hasPhone = /(?:\+?55\s*)?(?:\(?\d{2}\)?\s*)?(?:9\s*)?\d{4}[-\s]?\d{4}/.test(combined);
+      if (hasEmail || hasCpf || hasPhone) {
+        return jsonResponse({ error: 'Remova e-mail, telefone, CPF ou outros identificadores do paciente antes de continuar.' }, 400);
+      }
+
+      const messages: Array<{ role: 'system' | 'user'; content: string }> = [
+        { role: 'system', content: supervisionSystemPrompt },
+        { role: 'user', content: `MATERIAL CLÍNICO DESIDENTIFICADO:\n${context}\n\nDÚVIDAS DO PROFISSIONAL/ESTUDANTE:\n${doubts || 'Não informadas'}\n\nCONCEITOS JÁ PERCEBIDOS:\n${concepts || 'Não informados'}` },
+      ];
+      const report = await callOpenRouter(apiKey, messages);
+      if (typeof report?.summary !== 'string' || !report.summary.trim()) {
+        throw new Error('O modelo não retornou uma preparação de supervisão válida.');
+      }
+      const list = (value: unknown, max: number) => Array.isArray(value)
+        ? value.filter((item): item is string => typeof item === 'string' && !!item.trim()).slice(0, max)
+        : [];
+      return jsonResponse({
+        supervision: {
+          summary: report.summary.trim(),
+          observations: list(report?.observations, 6),
+          hypotheses: list(report?.hypotheses, 6),
+          theoretical_axes: list(report?.theoretical_axes, 6),
+          supervision_questions: list(report?.supervision_questions, 8),
+          missing_information: list(report?.missing_information, 6),
+          cautions: list(report?.cautions, 6),
+          references: list(report?.references, 6),
+        },
+        model: MODEL,
+      });
     }
 
     const goal = typeof body?.goal === 'string' ? body.goal.trim().slice(0, 120) : 'Compreender o conceito';
+    const available = await quotaRequest(authorization, 'professor', 1, false);
+    if (!available.allowed) return quotaDeniedResponse(available, 'professor');
     const history = normalizeHistory(body?.history);
     const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
       { role: 'system', content: professorSystemPrompt },
@@ -228,7 +446,9 @@ Deno.serve(async (req: Request) => {
       { role: 'user', content: `Tema ou dúvida: ${topic}\nNível: ${level}\nObjetivo: ${goal}` },
     ];
     const pack = await callOpenRouter(apiKey, messages);
-    return jsonResponse({ pack, model: MODEL });
+    const consumed = await quotaRequest(authorization, 'professor', 1, true);
+    if (!consumed.allowed) return quotaDeniedResponse(consumed, 'professor');
+    return jsonResponse({ pack, model: MODEL, quota: consumed });
   } catch (error) {
     console.error('Erro no Professor Clínico:', error);
 
@@ -286,6 +506,10 @@ Deno.serve(async (req: Request) => {
         provider_status: error.status,
         provider_error_type: error.errorType,
       }, 502);
+    }
+
+    if (error instanceof QuotaServiceError) {
+      return jsonResponse({ error: error.message, code: 'ENTITLEMENT_SERVICE_ERROR' }, error.status);
     }
 
     if (error instanceof SyntaxError || (error instanceof Error && /formato inválido|resposta vazia|não retornou/i.test(error.message))) {

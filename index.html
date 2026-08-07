@@ -772,6 +772,45 @@ const CASE_DETAILS = {
   c6:{name:'Rafael Costa',code:'AC-029',image:'https://images.pexels.com/photos/6632525/pexels-photo-6632525.jpeg?auto=compress&cs=tinysrgb&w=1600',age:'38 anos',occupation:'Gerente comercial',relationship:'Casado',sessions:'3 sessões',complaint:'Rupturas abruptas no trabalho após conflitos com figuras de autoridade.',quote:'“Eu prefiro sair antes que alguém decida que não sou bom o bastante.”',history:'Relata sucessivas demissões voluntárias após críticas pontuais. O pai era rígido e valorizava desempenho. Durante conflitos, descreve sensação corporal de urgência e necessidade de “encerrar tudo imediatamente”.',session:[['Sessão 1','Justifica a demissão como ato de liberdade.'],['Sessão 2','Recorda críticas paternas diante de notas escolares abaixo do esperado.'],['Sessão 3','Diz que imaginou o analista julgando sua decisão antes mesmo de contar.']]}
 };
 
+/* Banco ampliado de dossiês fictícios. Mantém variedade suficiente para que a
+   cota Pro de até 5 casos/dia não esgote o acervo nos primeiros acessos. */
+const EXTRA_CASE_SEEDS = [
+  {title:'Medo de decepcionar e perfeccionismo acadêmico',cat:'Superego',persp:'Freudiana',level:2,age:24,job:'Estudante',rel:'Solteira',quote:'Se não for excelente, parece que não valeu nada.',text:'Uma estudante relata jornadas extensas de estudo, culpa intensa ao descansar e sensação de fracasso diante de notas que considera apenas boas.',history:'Descreve uma infância marcada por elogios ligados ao desempenho e dificuldade familiar em reconhecer limites ou cansaço.',points:['Como pensar a severidade das exigências internas?','Que função o desempenho ocupa na economia psíquica?','Como a relação com o erro pode aparecer na transferência?'],frags:['Diz que descansar antes de uma prova parece irresponsável.','Percebe que minimiza qualquer conquista poucos minutos depois de alcançá-la.']},
+  {title:'Ciúme recorrente sem evidências de traição',cat:'Vínculos',persp:'Kleiniana',level:2,age:33,job:'Arquiteta',rel:'Em relacionamento',quote:'Eu sei que não aconteceu nada, mas sinto como se já tivesse sido trocada.',text:'A paciente relata crises de ciúme diante de situações ambíguas e alterna idealização do parceiro com desconfiança intensa.',history:'Conta experiências precoces de separação e descreve relações anteriores marcadas pelo medo persistente de substituição.',points:['Como trabalhar a oscilação entre idealização e perseguição?','Que ansiedades de perda aparecem no relato?','O que pertence ao vínculo atual e o que pode estar sendo reeditado?'],frags:['Após um atraso do parceiro, imagina imediatamente abandono.','Reconhece que procura sinais de rejeição mesmo quando a relação está estável.']},
+  {title:'Dificuldade de brincar e sensação de vida automática',cat:'Self',persp:'Winnicottiana',level:2,age:40,job:'Contadora',rel:'Casada',quote:'Eu cumpro tudo, mas não sei dizer do que eu realmente gosto.',text:'Uma profissional eficiente relata viver por obrigações, com pouca espontaneidade e dificuldade de identificar desejos próprios.',history:'Aprendeu cedo a adaptar-se às necessidades da família e era descrita como uma criança que nunca dava trabalho.',points:['Como diferenciar adaptação social e falso self defensivo?','Onde aparecem sinais de gesto espontâneo?','Que lugar o brincar pode ter no processo?'],frags:['Diz que escolhe atividades pensando no que esperam dela.','Fica surpresa quando o analista pergunta o que faria sem precisar agradar ninguém.']},
+  {title:'Esquecimentos recorrentes antes de sessões difíceis',cat:'Resistência',persp:'Freudiana',level:2,age:28,job:'Publicitário',rel:'Solteiro',quote:'É curioso: justamente nesses dias eu esqueço o horário.',text:'O paciente passa a esquecer ou confundir horários depois que as sessões se aproximam de lembranças familiares carregadas de afeto.',history:'No início era pontual e engajado. Os atrasos surgiram após associar conflitos atuais a experiências de humilhação na adolescência.',points:['O que a mudança de pontualidade pode comunicar?','Como abordar resistência sem transformar o enquadre em punição?','Que relação existe entre o conteúdo emergente e os esquecimentos?'],frags:['Chega vinte minutos atrasado após uma sessão emocionalmente intensa.','Diz que talvez esteja inventando problemas ao falar da família.']},
+  {title:'Necessidade constante de aprovação do analista',cat:'Transferência',persp:'Lacaniana',level:3,age:30,job:'Jornalista',rel:'Solteira',quote:'Eu queria saber se você acha que eu estou fazendo isso certo.',text:'A analisanda solicita frequentemente validação sobre escolhas pessoais e tenta antecipar qual resposta seria considerada correta pelo analista.',history:'Relata ter crescido buscando sinais discretos de aprovação de figuras de autoridade e sentir grande desconforto diante de respostas ambíguas.',points:['Como a demanda de aprovação se articula à transferência?','O que pode acontecer se o analista ocupar diretamente o lugar de quem sabe?','Como abrir espaço para a questão do desejo?'],frags:['Pergunta três vezes se tomou a decisão correta.','Diante do silêncio, diz temer ter decepcionado o analista.']},
+  {title:'Sono excessivo diante de decisões importantes',cat:'Defesas',persp:'Freudiana',level:2,age:35,job:'Engenheiro',rel:'Casado',quote:'Quando preciso decidir alguma coisa, parece que meu corpo desliga.',text:'O paciente relata sonolência e adiamento justamente quando precisa tomar decisões que podem alterar sua trajetória profissional.',history:'Associa escolhas importantes ao medo de perder segurança e de ser responsabilizado por consequências futuras.',points:['Que função defensiva o adiamento pode assumir?','Que conflitos aparecem em torno da escolha?','Como evitar reduzir o sintoma a uma explicação única?'],frags:['Adormece no sofá antes de responder a uma proposta de trabalho.','Associa decisão à frase paterna de que escolhas erradas cobram um preço.']},
+  {title:'Raiva intensa diante de pequenas frustrações',cat:'Agressividade',persp:'Kleiniana',level:3,age:37,job:'Empresário',rel:'Divorciado',quote:'Na hora parece que a pessoa inteira vira minha inimiga.',text:'Pequenas frustrações relacionais desencadeiam explosões de raiva seguidas de culpa e tentativas urgentes de reparação.',history:'O paciente reconhece dificuldade em manter simultaneamente aspectos bons e frustrantes de uma mesma pessoa quando se sente contrariado.',points:['Como pensar cisão e integração do objeto?','Que lugar ocupa a culpa depois das explosões?','Quais movimentos de reparação aparecem?'],frags:['Após uma crítica, descreve a ex-companheira como completamente hostil.','Na sessão seguinte sente culpa e enumera qualidades que antes não conseguia reconhecer.']},
+  {title:'Ansiedade ao receber cuidado de outras pessoas',cat:'Vínculos',persp:'Winnicottiana',level:2,age:32,job:'Fisioterapeuta',rel:'Em relacionamento',quote:'É mais fácil cuidar do que deixar alguém cuidar de mim.',text:'A paciente sente desconforto quando recebe ajuda e tende a assumir o papel de cuidadora em todos os vínculos.',history:'Cresceu em contexto de doença crônica de um familiar e aprendeu a perceber necessidades alheias antes das próprias.',points:['Como pensar dependência e possibilidade de receber cuidado?','Que adaptações foram necessárias no desenvolvimento?','Como essa posição pode reaparecer no setting?'],frags:['Tenta tranquilizar o analista ao falar de uma semana difícil.','Diz sentir vergonha quando precisa pedir ajuda.']},
+  {title:'Relacionamentos iniciados logo após separações',cat:'Repetição',persp:'Freudiana',level:2,age:27,job:'Fotógrafo',rel:'Solteiro',quote:'Eu termino uma relação e em poucos dias já estou dentro de outra.',text:'O paciente relata sucessão de relacionamentos com pouco intervalo para elaboração das separações e intenso desconforto quando fica sozinho.',history:'Associa solidão a uma sensação antiga de não ter importância para ninguém e evita permanecer com sentimentos de perda.',points:['Que função pode ter a substituição rápida do objeto?','O que deixa de ser elaborado entre uma relação e outra?','Como repetição e luto podem se articular?'],frags:['Conta o término anterior apenas depois de apresentar a nova relação.','Ao imaginar um mês sozinho, relata sensação de vazio e urgência.']},
+  {title:'Procrastinação próxima à conclusão de projetos',cat:'Repetição',persp:'Lacaniana',level:3,age:39,job:'Pesquisadora',rel:'Casada',quote:'Eu avanço quase até o fim e então tudo trava.',text:'Uma pesquisadora produz com consistência até as etapas finais, quando passa a adiar entregas e a revisar detalhes indefinidamente.',history:'Relata que concluir algo a expõe ao julgamento público e encerra a possibilidade de imaginar uma versão perfeita ainda por vir.',points:['O que muda subjetivamente quando o projeto precisa ser concluído?','Como desejo e demanda do Outro aparecem no impasse?','Que ganho pode existir em manter a obra inacabada?'],frags:['Adia o envio de um artigo pronto por pequenas correções.','Diz que enquanto não entrega ainda pode imaginar que seria perfeito.']},
+  {title:'Sentimento de impostora após promoção profissional',cat:'Narcisismo',persp:'Freudiana',level:2,age:34,job:'Médica',rel:'Casada',quote:'Agora vão finalmente descobrir que eu não sou tudo isso.',text:'Após ser promovida, a paciente passa a interpretar reconhecimento como aumento do risco de ser desmascarada e intensifica a autocrítica.',history:'Na família, conquistas eram rapidamente acompanhadas por lembranças de que sempre havia alguém melhor.',points:['Como ideal do eu e autoestima aparecem no relato?','Por que o reconhecimento aumenta a angústia?','Que diferença existe entre limite real e ataque narcísico a si mesma?'],frags:['Recebe elogio da equipe e passa a listar falhas próprias.','Pergunta por que é mais confortável ser subestimada do que reconhecida.']},
+  {title:'Controle rígido da rotina após experiência de perda',cat:'Angústia',persp:'Freudiana',level:2,age:45,job:'Administrador',rel:'Viúvo',quote:'Se tudo estiver no lugar, talvez nada saia do controle de novo.',text:'Depois de uma perda significativa, o paciente organiza horários e tarefas de forma cada vez mais rígida e sofre diante de imprevistos mínimos.',history:'Reconhece que a organização lhe oferece sensação temporária de segurança, embora limite encontros e atividades espontâneas.',points:['Como controle e desamparo podem se articular?','Que afetos ficam menos acessíveis quando a rotina ocupa todo o espaço?','Como escutar a função do comportamento antes de interpretá-lo?'],frags:['Reorganiza toda a semana depois de um compromisso cancelado.','Associa imprevisto à experiência de receber uma notícia de perda.']},
+  {title:'Dificuldade de separar-se da opinião paterna',cat:'Separação',persp:'Lacaniana',level:3,age:26,job:'Advogado',rel:'Solteiro',quote:'Antes de decidir, escuto na cabeça o que meu pai diria.',text:'O paciente consegue formular desejos próprios, mas recua quando imagina a desaprovação paterna, mesmo sem consultar o pai.',history:'A escolha profissional seguiu expectativas familiares. Pela primeira vez considera uma mudança de área que descreve como verdadeiramente sua.',points:['Como distinguir desejo e identificação às expectativas familiares?','Que lugar a palavra paterna ocupa mesmo na ausência do pai?','O que está em jogo na possibilidade de uma escolha própria?'],frags:['Fala animadamente de uma nova área e logo enumera críticas que o pai faria.','Percebe que nunca perguntou ao pai se ele realmente pensaria tudo aquilo.']},
+  {title:'Medo de abandono após nascimento do primeiro filho',cat:'Vínculos',persp:'Kleiniana',level:2,age:31,job:'Professora',rel:'Casada',quote:'Quando ele cuida do bebê eu fico feliz e, ao mesmo tempo, sinto que perdi meu lugar.',text:'Após o nascimento do filho, a paciente relata ciúme, culpa e medo de perder espaço na relação conjugal apesar de reconhecer o apoio do parceiro.',history:'A maternidade reativa lembranças de competição por atenção na família de origem e sentimentos ambivalentes que ela considera inaceitáveis.',points:['Como acolher ambivalência sem moralizá-la?','Que ansiedades de perda e rivalidade reaparecem?','Como culpa e reparação podem ser pensadas?'],frags:['Chora ao admitir irritação quando o parceiro acalma o bebê.','Diz que uma boa mãe não deveria sentir ciúme.']},
+  {title:'Humor constante para evitar temas dolorosos',cat:'Defesas',persp:'Freudiana',level:2,age:41,job:'Vendedor',rel:'Casado',quote:'Se eu fizer todo mundo rir, ninguém percebe que a coisa apertou.',text:'O paciente transforma relatos dolorosos em piadas e muda rapidamente de assunto quando o afeto começa a aparecer.',history:'É conhecido na família como aquele que mantém o ambiente leve e relata desconforto quando alguém demonstra tristeza diante dele.',points:['Qual função o humor cumpre em cada momento?','Quando o recurso criativo se torna evitamento afetivo?','Como acompanhar o afeto sem retirar bruscamente a defesa?'],frags:['Ri ao narrar uma hospitalização grave e logo pergunta se a história foi engraçada.','Fica em silêncio quando o analista nota a mudança de tom.']},
+  {title:'Sensação de vazio nos fins de semana',cat:'Self',persp:'Winnicottiana',level:2,age:29,job:'Analista financeiro',rel:'Solteiro',quote:'Durante a semana eu funciono; no domingo parece que eu desapareço.',text:'Sem tarefas profissionais, o paciente relata vazio, tédio intenso e dificuldade de iniciar atividades por prazer.',history:'Sua rotina sempre foi altamente estruturada por estudo e trabalho, áreas nas quais recebe reconhecimento objetivo.',points:['Que diferença há entre funcionar e sentir-se vivo?','Onde aparecem experiências de espontaneidade?','Como o setting pode favorecer exploração sem preencher o vazio pelo paciente?'],frags:['Lista metas profissionais quando perguntado sobre lazer.','Recorda gostar de desenhar antes de começar a tratar hobbies como perda de tempo.']},
+  {title:'Conflitos repetidos com figuras de autoridade',cat:'Transferência',persp:'Freudiana',level:3,age:36,job:'Designer',rel:'Em relacionamento',quote:'Todo chefe começa bem e depois vira alguém que quer me controlar.',text:'A paciente relata sequência de conflitos intensos com superiores, alternando busca de reconhecimento e sensação de perseguição.',history:'Descreve uma relação ambivalente com uma mãe exigente, de quem buscava aprovação e contra quem precisava afirmar autonomia.',points:['Que padrão relacional se repete com figuras de autoridade?','Como reconhecimento e controle se misturam?','De que modo algo semelhante pode emergir com o analista?'],frags:['Idealiza uma nova chefia e semanas depois sente-se excessivamente vigiada.','Pergunta se o analista também acha que ela resiste a qualquer orientação.']},
+  {title:'Culpa ao estabelecer limites com a família',cat:'Superego',persp:'Freudiana',level:2,age:43,job:'Assistente social',rel:'Divorciada',quote:'Dizer não parece uma prova de que eu sou egoísta.',text:'A paciente atende pedidos familiares mesmo quando está exausta e experimenta culpa intensa ao tentar estabelecer limites.',history:'Foi colocada precocemente na posição de mediadora de conflitos e recebeu reconhecimento por ser a pessoa responsável da família.',points:['Que ideais sustentam a culpa?','Como diferenciar cuidado e submissão às exigências internas?','O que o não desperta na fantasia da paciente?'],frags:['Cancela um compromisso próprio para resolver um problema do irmão.','Ao ensaiar um limite, imagina toda a família decepcionada.']},
+  {title:'Busca de relações intensas e rompimentos súbitos',cat:'Vínculos',persp:'Kleiniana',level:3,age:25,job:'Estilista',rel:'Solteira',quote:'Ou eu sinto tudo ou parece que não sinto nada.',text:'A paciente se envolve rapidamente, idealiza novos vínculos e rompe de modo abrupto depois das primeiras frustrações.',history:'Descreve dificuldade em sustentar simultaneamente carinho e raiva pela mesma pessoa, especialmente quando teme rejeição.',points:['Como pensar integração de aspectos bons e frustrantes do objeto?','Que angústias acompanham a passagem da idealização à ruptura?','Como manter hipóteses abertas sem rotular a paciente?'],frags:['Chama uma nova amiga de única pessoa que a compreende.','Após uma discordância, afirma não querer vê-la nunca mais.']},
+  {title:'Bloqueio criativo após exposição pública',cat:'Narcisismo',persp:'Winnicottiana',level:2,age:38,job:'Ilustradora',rel:'Em relacionamento',quote:'Depois que começaram a olhar, eu parei de saber o que queria criar.',text:'Uma artista relata perda de espontaneidade depois que seu trabalho recebeu grande visibilidade e passou a antecipar a reação do público em cada escolha.',history:'Antes produzia de forma experimental; com o reconhecimento, começou a repetir fórmulas que imagina serem esperadas.',points:['Como olhar externo e espontaneidade se relacionam?','Que formas de adaptação surgiram com o reconhecimento?','Como recuperar um espaço de experimentação sem idealizar o passado?'],frags:['Mostra trabalhos antigos e diz que pareciam mais seus.','Percebe que pensa em métricas antes mesmo de começar um desenho.']},
+  {title:'Medo de envelhecer e perda de reconhecimento',cat:'Narcisismo',persp:'Freudiana',level:2,age:52,job:'Executiva',rel:'Casada',quote:'Tenho medo de me tornar invisível.',text:'Mudanças corporais e profissionais associadas à idade despertam preocupação intensa com perda de valor e visibilidade.',history:'Construiu grande parte da identidade em torno de desempenho, autonomia e reconhecimento externo.',points:['Que perdas reais e narcísicas estão sendo elaboradas?','Como diferenciar luto pelas mudanças e idealização da juventude?','Que outras fontes de investimento começam a aparecer?'],frags:['Compara-se diariamente a colegas mais jovens.','Reconhece satisfação em atividades que antes considerava pouco produtivas.']},
+  {title:'Inibição da fala em reuniões apesar de domínio técnico',cat:'Inibição',persp:'Freudiana',level:2,age:30,job:'Engenheira',rel:'Solteira',quote:'Eu sei a resposta, mas na hora minha voz simplesmente some.',text:'A paciente domina os temas discutidos no trabalho, mas evita falar diante do grupo e depois se critica por ter permanecido em silêncio.',history:'Recorda situações escolares em que erros diante da turma eram recebidos com comentários humilhantes de um professor.',points:['Que relação existe entre exposição e expectativa de humilhação?','Como a inibição protege e ao mesmo tempo restringe?','Que elementos atuais contradizem a cena antecipada?'],frags:['Prepara uma contribuição e desiste segundos antes de falar.','Associa a mesa de reunião à sensação de estar novamente diante da turma.']},
+  {title:'Sonhos recorrentes com portas que não fecham',cat:'Sonhos',persp:'Freudiana',level:2,age:35,job:'Psicóloga',rel:'Casada',quote:'No sonho eu tento fechar a porta, mas sempre fica uma fresta.',text:'Durante um período de mudanças familiares, a paciente passa a relatar sonhos repetidos em que tenta proteger um espaço sem conseguir fechá-lo completamente.',history:'Está reorganizando limites com familiares que costumam entrar em sua rotina sem combinar e sente culpa ao pedir privacidade.',points:['Quais associações pessoais a imagem da porta produz?','Como evitar interpretar um símbolo de forma universal?','Que conflitos atuais podem ser trabalhados a partir do sonho?'],frags:['Associa a porta ao quarto da adolescência, que não tinha chave.','Percebe que no sonho nunca chama ninguém para ajudá-la.']},
+  {title:'Dificuldade de receber elogios sem desqualificá-los',cat:'Narcisismo',persp:'Freudiana',level:1,age:28,job:'Nutricionista',rel:'Em relacionamento',quote:'Quando me elogiam, penso que estão sendo gentis, não sinceros.',text:'A paciente responde a elogios enumerando defeitos, atribuindo êxitos à sorte e preservando uma imagem de insuficiência.',history:'Relata que, em casa, demonstrar orgulho pelas próprias conquistas era frequentemente chamado de arrogância.',points:['Como a autodesqualificação protege uma determinada imagem de si?','Que conflito existe entre reconhecimento e vergonha?','Como o elogio do analista poderia ser recebido?'],frags:['Recebe uma promoção e explica por que qualquer colega faria melhor.','Diz sentir vergonha apenas de imaginar dizer que está orgulhosa.']}
+];
+
+EXTRA_CASE_SEEDS.forEach((seed,index)=>{
+  const n=index+7,id=`c${n}`,code=`AC-${String(n+23).padStart(3,'0')}`;
+  CASES.push({id,title:seed.title,cat:seed.cat,level:seed.level,duration:`${10+(index%9)} min`,status:'new',persp:seed.persp,text:seed.text,points:seed.points});
+  CASE_DETAILS[id]={
+    name:`Paciente ${code}`,code,image:CASE_DETAILS[`c${(index%6)+1}`].image,age:`${seed.age} anos`,occupation:seed.job,relationship:seed.rel,sessions:'4 sessões',
+    complaint:seed.text,quote:`“${seed.quote}”`,history:seed.history,
+    session:[['Sessão 1',seed.frags[0]],['Sessão 3',seed.frags[1]],['Sessão 4','O material permanece em elaboração; o exercício propõe sustentar hipóteses sem fechá-las como diagnóstico.']]
+  };
+});
+
 const NOTIFICATIONS = [];
 
 /* ============ STATE ============ */
@@ -852,19 +891,25 @@ function render(){
   setTimeout(()=>window.syncProfilePlanUI?.(),0);
 }
 
+window.isPremiumAccess=function(){
+  const reason=String(window.AUTH?.reason||'').toLowerCase();
+  return reason==='active';
+};
+
 function renderSidebar(){
   const navItems = [
     {group:'Principal', items:[
       ['dashboard','home','Início'],['consulta','search','Consulta'],['conhecimento','book','Explorar'],
     ]},
     {group:'Estudo', items:[
-      ['casos','cases','Casos Clínicos'],['clinica','clinic','Clínica'],['ensino','teach','Ensino']
+      ['casos','cases','Casos Clínicos',false],['clinica','clinic','Clínica',false],['ensino','teach','Ensino',false]
     ]},
     {group:'Pessoal', items:[
-      ['biblioteca','library','Minha Biblioteca'],['anotacoes','notes','Anotações'],['favoritos','star','Favoritos'],['historico','history','Histórico']
+      ['biblioteca','library','Minha Biblioteca',false],['anotacoes','notes','Anotações',false],['favoritos','star','Favoritos',false],['historico','history','Histórico',true]
     ]},
   ];
   const cur = STATE.route.page;
+  const premium=window.isPremiumAccess?.()===true;
   return `
   <div class="sidebar ${STATE.sidebarCollapsed?'collapsed':''}">
     <div class="sb-brand" onclick="nav('dashboard')">
@@ -875,8 +920,8 @@ function renderSidebar(){
     <div class="nav-scroll">
       ${navItems.map(g=>`
         <div class="nav-group-label">${g.group}</div>
-        ${g.items.map(([p,icon,label])=>`
-          <div class="nav-item ${cur===p?'active':''}" onclick="nav('${p}')">${ICON[icon]}<span class="nav-label">${label}</span></div>
+        ${g.items.map(([p,icon,label,paid])=>`
+          <div class="nav-item ${cur===p?'active':''} ${paid&&!premium?'premium-locked-nav':''}" onclick="nav('${p}')">${ICON[icon]}<span class="nav-label">${label}</span>${paid&&!premium?'<span class="nav-premium-lock">Premium</span>':''}</div>
         `).join('')}
       `).join('')}
     </div>
@@ -888,12 +933,32 @@ function renderSidebar(){
 }
 
 function renderMobileNav(){
-  const items = [['dashboard','home','Início'],['consulta','search','Consulta'],['casos','cases','Casos'],['anotacoes','notes','Notas'],['perfil','settings','Perfil']];
+  const items = [['dashboard','home','Início'],['consulta','search','Consulta'],['casos','cases','Casos'],['anotacoes','notes','Notas']];
   const cur = STATE.route.page;
-  return `<div class="mobile-nav"><div class="mn-row">
+  const premium=window.isPremiumAccess?.()===true;
+  const morePages=['conhecimento','clinica','clinica-supervisao','ensino','biblioteca','favoritos','historico','perfil'];
+  const moreItems=[
+    ['conhecimento','book','Explorar',false],['clinica','clinic','Clínica',false],['ensino','teach','Ensino',false],
+    ['biblioteca','library','Minha Biblioteca',false],['favoritos','star','Favoritos',false],['historico','history','Histórico',true],['perfil','settings','Perfil',false]
+  ];
+  return `<div id="mobileMoreBackdrop" class="mobile-more-backdrop hidden" onclick="toggleMobileMore(false)"></div>
+  <aside id="mobileMoreSheet" class="mobile-more-sheet hidden" aria-label="Mais áreas do PsicoBase">
+    <div class="mobile-more-handle"></div><div class="mobile-more-head"><div><span>PSICOBASE</span><strong>Mais áreas</strong></div><button onclick="toggleMobileMore(false)" aria-label="Fechar">×</button></div>
+    <div class="mobile-more-grid">${moreItems.map(([p,icon,label,paid])=>`<button class="mobile-more-item ${paid&&!premium?'premium-locked':''}" onclick="toggleMobileMore(false);nav('${p}')">${ICON[icon]}<span>${label}</span>${paid&&!premium?'<small>Premium</small>':''}</button>`).join('')}</div>
+  </aside>
+  <div class="mobile-nav"><div class="mn-row">
     ${items.map(([p,icon,label])=>`<div class="mn-item ${cur===p?'active':''}" onclick="nav('${p}')">${ICON[icon]}<span>${label}</span></div>`).join('')}
+    <div class="mn-item ${morePages.includes(cur)?'active':''}" onclick="toggleMobileMore(true)">${ICON.panel}<span>Mais</span></div>
   </div></div>`;
 }
+
+window.toggleMobileMore=function(show){
+  const sheet=document.getElementById('mobileMoreSheet'),backdrop=document.getElementById('mobileMoreBackdrop');
+  if(!sheet||!backdrop)return;
+  const open=show===undefined?sheet.classList.contains('hidden'):!!show;
+  sheet.classList.toggle('hidden',!open);backdrop.classList.toggle('hidden',!open);
+  document.body.classList.toggle('mobile-menu-open',open);
+};
 
 function renderTopbar(){
   return `
@@ -1631,7 +1696,7 @@ function viewEnsino(){
         </div>
         <div class="clinical-professor-actions">
           <button id="pc-button" class="btn primary" onclick="generateClinicalProfessorSession()">${ICON.plus} Criar sessão de estudo</button>
-          <span class="clinical-professor-note">As respostas exibem as referências utilizadas e separam as formulações de cada autor.</span>
+          <span class="clinical-professor-note">Free: 2 sessões por dia · Pro: ilimitado. As respostas exibem as referências utilizadas e separam as formulações de cada autor.</span>
         </div>
         <div id="pc-status" class="question-generator-status hidden"></div>
       </div>
@@ -1656,6 +1721,7 @@ function viewEnsino(){
           <div class="field"><label for="qg-focus">Foco</label><select id="qg-focus" class="field-select"><option>Compreensão teórica</option><option>Comparação entre autores</option><option>Aplicação clínica reflexiva</option><option>Preparação de aula</option></select></div>
         </div>
         <button id="qg-button" class="btn primary" onclick="generateDiscursiveQuestions()">${ICON.plus} Gerar questões fundamentadas</button>
+        <div class="free-plan-usage-note">Free: 2 gerações por dia, até 5 questões por vez · Pro: ilimitado.</div>
         <div id="qg-status" class="question-generator-status hidden"></div>
       </div>
       <aside class="questions-preview-ui"><span class="eyebrow">Estrutura do resultado</span><div><b>01</b><p>Pergunta aberta e nível de dificuldade</p></div><div><b>02</b><p>Pontos esperados na resposta</p></div><div><b>03</b><p>Orientação e referências sugeridas</p></div></aside>
@@ -2654,18 +2720,31 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
 <script id="dashboard-clinical-archive-v5-js">
 (function(){
   const openedKey='psicobase_opened_cases_v1', drawKey='psicobase_daily_draw_v2';
-  const cooldownKey='psicobase_next_draw_at_v1', COOLDOWN_MS=24*60*60*1000;
+  const usageKey='psicobase_case_daily_usage_v3';
   let cooldownTimer=0;
-  function getNextDrawAt(){
-    const value=Number(localStorage.getItem(cooldownKey)||0);
-    return Number.isFinite(value)?value:0;
+  function caseDailyLimit(){return window.isPremiumAccess?.()===true?5:1}
+  function readDailyUsage(){
+    let usage={};try{usage=JSON.parse(localStorage.getItem(usageKey)||'{}')}catch{}
+    if(usage.date!==dateKey())usage={date:dateKey(),count:0};
+    usage.count=Math.max(0,Number(usage.count)||0);
+    return usage;
   }
-  function cooldownRemaining(){return Math.max(0,getNextDrawAt()-Date.now())}
-  function cooldownActive(){return cooldownRemaining()>0}
+  function usedToday(){return readDailyUsage().count}
+  function syncDailyUsage(count){
+    const usage={date:dateKey(),count:Math.max(0,Number(count)||0)};
+    try{localStorage.setItem(usageKey,JSON.stringify(usage))}catch{}
+    return usage.count;
+  }
+  function cooldownActive(){return usedToday()>=caseDailyLimit()}
+  function cooldownRemaining(){
+    if(!cooldownActive())return 0;
+    const next=new Date();next.setHours(24,0,0,0);
+    return Math.max(0,next.getTime()-Date.now());
+  }
   function startDrawCooldown(){
-    const until=Date.now()+COOLDOWN_MS;
-    try{localStorage.setItem(cooldownKey,String(until))}catch{}
-    return until;
+    const usage=readDailyUsage();usage.count=Math.min(caseDailyLimit(),usage.count+1);
+    try{localStorage.setItem(usageKey,JSON.stringify(usage))}catch{}
+    return usage.count;
   }
   function formatCountdown(ms){
     const total=Math.max(0,Math.ceil(ms/1000));
@@ -2686,7 +2765,7 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
         button.disabled=true;
         button.dataset.cooldownButton='1';
         button.removeAttribute('onclick');
-        button.textContent=`Próximo dossiê · ${clock}`;
+        button.textContent=`Limite ${usedToday()}/${caseDailyLimit()} · ${clock}`;
       }
       cooldownTimer=setTimeout(refreshCooldownUI,1000);
     }else if(button?.dataset.cooldownButton==='1'){
@@ -2716,7 +2795,9 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
   function segmentMarkup(segmentIndex,selectedId,drawn){
     const opened=getOpened();
     const positions=[1,4,7,10,13,16];
-    const caseAt={};CASES.forEach((c,i)=>caseAt[positions[i%positions.length]]=c);
+    const selected=CASES.find(c=>c.id===selectedId);
+    const visibleCases=[selected,...CASES.filter(c=>c.id!==selectedId)].filter(Boolean).slice(0,positions.length);
+    const caseAt={};visibleCases.forEach((c,i)=>caseAt[positions[i]]=c);
     return `<div class="archive-segment" data-segment="${segmentIndex}">${Array.from({length:SLOT_COUNT},(_,slot)=>{
       const c=caseAt[slot];
       if(!c)return `<article class="archive-file is-locked is-decoy" data-slot="${segmentIndex}-${slot}" onclick="toast('Este caso clínico ainda está bloqueado.')"><span class="af-code">AC-${String(segmentIndex*SLOT_COUNT+slot+41).padStart(3,'0')}</span><div class="af-title">CASO CLÍNICO</div><span class="af-label">BLOQUEADO</span><span class="af-open">◷</span></article>`;
@@ -2732,14 +2813,15 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
   function dashboardFoldersMarkup(selectedId,drawn){return Array.from({length:SEGMENTS},(_,i)=>segmentMarkup(i,selectedId,drawn)).join('')}
   function dashboardArchiveMarkup(){
     const waiting=cooldownActive();
+    const limit=caseDailyLimit(),used=usedToday(),isPro=window.isPremiumAccess?.()===true;
     const chosen=waiting?null:dailySelectedCase(false);
     let saved={};try{saved=JSON.parse(localStorage.getItem(drawKey)||'{}')}catch{}
     const drawn=!!(!waiting&&chosen&&saved.date===dateKey()&&saved.id===chosen.id);
     const allDone=!waiting&&!eligibleCases().length;
     const remaining=waiting?formatCountdown(cooldownRemaining()):'';
-    const buttonText=waiting?`Próximo dossiê · ${remaining}`:allDone?'Todos os dossiês acessados':drawn?'Abrir dossiê selecionado':'Sortear dossiê de hoje';
+    const buttonText=waiting?`Limite ${used}/${limit} · ${remaining}`:allDone?'Todos os dossiês acessados':drawn?'Abrir dossiê selecionado':'Sortear novo dossiê';
     const buttonAction=waiting||allDone?'':drawn?`onclick="openSelectedDashboardCase()"`:`onclick="startDashboardDraw(true)"`;
-    return `<section class="clinical-archive dashboard-clinical-archive" id="dailyClinicalArchive"><span class="archive-pointer" aria-hidden="true"></span><div class="archive-copy"><div class="archive-kicker">Arquivo clínico diário</div><h2>Um novo dossiê é liberado a cada 24 horas.</h2><p>O acervo permanece em sigilo na dashboard. O sorteio sempre seleciona uma pasta ainda não acessada.</p></div><div class="archive-viewport" id="archiveViewport"><div class="archive-track">${dashboardFoldersMarkup(chosen?.id,drawn)}</div></div><div class="archive-footer"><div class="archive-actions"><button class="archive-cta" data-draw-button data-cooldown-button="${waiting?'1':'0'}" ${waiting||allDone?'disabled':''} ${buttonAction}>${buttonText}</button></div></div></section>`;
+    return `<section class="clinical-archive dashboard-clinical-archive" id="dailyClinicalArchive"><span class="archive-pointer" aria-hidden="true"></span><div class="archive-copy"><div class="archive-kicker">Arquivo clínico diário</div><h2>${isPro?'Plano Pro: até 5 dossiês clínicos por dia.':'Plano Free: 1 dossiê clínico por dia.'}</h2><p>${isPro?`Você ainda pode abrir ${Math.max(0,limit-used)} dossiê${limit-used===1?'':'s'} hoje.`:'Conheça um caso por dia. No Pro, você pode sortear até 5 dossiês diariamente.'}</p></div><div class="archive-viewport" id="archiveViewport"><div class="archive-track">${dashboardFoldersMarkup(chosen?.id,drawn)}</div></div><div class="archive-footer"><div class="archive-actions"><button class="archive-cta" data-draw-button data-cooldown-button="${waiting?'1':'0'}" ${waiting||allDone?'disabled':''} ${buttonAction}>${buttonText}</button></div></div></section>`;
   }
   const previousDashboard=window.viewDashboard;
   window.viewDashboard=function(){let html=previousDashboard();return html.replace(/<section class="clinical-archive" id="dailyClinicalArchive">[\s\S]*?<\/section>/,dashboardArchiveMarkup())};
@@ -2755,13 +2837,29 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
     })[0];
     if(target)openDailyCaseArchive(archive,target);
   };
-  window.openDailyCaseArchive=function(el,folderEl){
+  window.openDailyCaseArchive=async function(el,folderEl){
     if(!el||el.classList.contains('opening')||el.classList.contains('is-drawing'))return;
     const id=folderEl?.dataset?.case;if(!id){toast('Este caso clínico ainda está bloqueado.');return}
     const opened=getOpened(),wasAvailable=folderEl.classList.contains('is-available');
     const allowed=wasAvailable||opened.has(id)||hasCompleted(id);
     if(!allowed){toast('Este caso clínico ainda está bloqueado.');return}
-    if(wasAvailable)startDrawCooldown();
+    if(wasAvailable){
+      if(typeof window.consumeFeatureQuota!=='function'){toast('Não foi possível validar seu limite agora. Tente novamente.');return}
+      folderEl.style.pointerEvents='none';
+      try{
+        const quota=await window.consumeFeatureQuota('case_dossier',1);
+        if(Number.isFinite(Number(quota?.used)))syncDailyUsage(quota.used);
+        if(!quota?.allowed){
+          folderEl.style.pointerEvents='';
+          if(window.isPremiumAccess?.()===true)toast('Você já abriu os 5 dossiês disponíveis no Pro hoje. Amanhã a cota será renovada.');
+          else{toast('Você já abriu o dossiê disponível no Free hoje.');window.openSubscriptionModal?.('Até 5 dossiês por dia');}
+          window.render();return;
+        }
+      }catch(error){
+        console.error('Erro ao validar cota do dossiê:',error);folderEl.style.pointerEvents='';
+        toast(error?.message||'Não foi possível validar seu limite agora. Tente novamente.');return;
+      }
+    }
     markCaseOpened(id);const chosen=CASES.find(c=>c.id===id);if(!chosen)return;
     STATE.lastDailyCase=chosen.id;folderEl.classList.remove('is-available');folderEl.classList.add('is-opened','selected');el.classList.add('opening');
     setTimeout(()=>nav('case-detail',chosen.id),760);
@@ -3576,7 +3674,10 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
       if(Number.isFinite(trialEnd)&&trialEnd>Date.now()) return {allowed:true,reason:'trial'};
       return {allowed:false,reason:'trial_expired'};
     }
-    if(status==='expired') return {allowed:false,reason:'expired'};
+    /* Depois do período inicial a conta continua utilizável no plano Free.
+       O status "expired" permanece no banco para compatibilidade; no front ele
+       representa a conta gratuita e apenas os recursos Premium são bloqueados. */
+    if(status==='expired'||status==='free') return {allowed:true,reason:'free'};
     return {allowed:false,reason:'profile_invalid'};
   }
 
@@ -3592,7 +3693,7 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
     if(existing)return existing;
     const fullName=(preferredName||user.user_metadata?.full_name||user.email?.split('@')[0]||'Usuário').trim().slice(0,80);
     const trialEndsAt=new Date(Date.now()+3*24*60*60*1000).toISOString();
-    const payload={id:user.id,full_name:fullName,access_status:'trial',trial_ends_at:trialEndsAt};
+    const payload={id:user.id,email:(user.email||'').trim().toLowerCase()||null,full_name:fullName,access_status:'trial',trial_ends_at:trialEndsAt};
     const {data,error}=await client.from('profiles').insert(payload).select('*').single();
     if(error){
       /* Se duas restaurações de sessão tentarem criar o perfil ao mesmo tempo,
@@ -3616,10 +3717,10 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
 
     if(error){
       console.error('Erro ao atualizar período expirado:',error);
-      return {profile:{...profile,access_status:'expired'},access:{allowed:false,reason:'expired'}};
+      return {profile:{...profile,access_status:'expired'},access:{allowed:true,reason:'free'}};
     }
 
-    if(data)return {profile:data,access:{allowed:false,reason:'expired'}};
+    if(data)return {profile:data,access:{allowed:true,reason:'free'}};
 
     /* A condição pode deixar de corresponder se uma ativação ocorrer enquanto
        a validação está em andamento. Nesse caso, usa o estado mais recente. */
@@ -3628,7 +3729,7 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
       const latestAccess=hasAccess(latest);
       if(latestAccess.reason!=='trial_expired') return {profile:latest,access:latestAccess};
     }
-    return {profile:{...profile,access_status:'expired'},access:{allowed:false,reason:'expired'}};
+    return {profile:{...profile,access_status:'expired'},access:{allowed:true,reason:'free'}};
   }
 
   function cacheProfileState(user,profile,access){
@@ -3692,7 +3793,9 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
     if(!root) return;
     if(AUTH.initializing){root.innerHTML=loadingScreen();return;}
     if(AUTH.user && !AUTH.allowed){root.innerHTML=lockScreen();return;}
-    return appRender.apply(this,arguments);
+    const result=appRender.apply(this,arguments);
+    setTimeout(()=>window.maybeShowFreeUpgradeNudge?.(),900);
+    return result;
   };
   try{render=window.render}catch{}
 
@@ -3786,10 +3889,10 @@ html[data-theme="dark"] .archive-test-btn{border-color:rgba(255,255,255,.2);colo
     window.viewPerfil=function(){
       const base=originalViewPerfil.apply(this,arguments);
       const email=escapeHtml(AUTH.user?.email||'');
-      const status=AUTH.reason==='trial'?'Período inicial':AUTH.reason==='active'?'Assinatura ativa':'Acesso';
+      const status=AUTH.reason==='trial'?'Período inicial':AUTH.reason==='active'?'Assinatura ativa':AUTH.reason==='free'?'Plano Free':'Acesso';
       const end=AUTH.reason==='trial'?AUTH.profile?.trial_ends_at:AUTH.profile?.access_until;
-      const endText=end?new Intl.DateTimeFormat('pt-BR',{dateStyle:'medium'}).format(new Date(end)):'—';
-      return base+`<section class="auth-account-card"><div class="auth-account-row"><div><strong>Conta PsicoBase</strong><div class="auth-account-email">${email} · ${status} até ${endText}</div></div><button class="btn" onclick="psicoLogout()">Sair da conta</button></div></section>`;
+      const endText=end?new Intl.DateTimeFormat('pt-BR',{dateStyle:'medium'}).format(new Date(end)):AUTH.reason==='free'?'sem expiração':'—';
+      return base+`<section class="auth-account-card"><div class="auth-account-row"><div><strong>Conta PsicoBase</strong><div class="auth-account-email">${email} · ${status}${AUTH.reason==='free'?` · ${endText}`:` até ${endText}`}</div></div><button class="btn" onclick="psicoLogout()">Sair da conta</button></div></section>`;
     };
     try{viewPerfil=window.viewPerfil}catch{}
   }
@@ -3812,18 +3915,24 @@ window.getCurrentPlanInfo = function(){
   }
   if(reason === 'trial' && profile?.access_status === 'trial' && trialEnd && trialEnd.getTime() > now){
     const days = Math.max(1, Math.ceil((trialEnd.getTime()-now)/86400000));
-    return {type:'trial', label:'Teste gratuito', title:'Período de teste', detail:`Restam ${days} dia${days===1?'':'s'} de acesso gratuito. Seu teste termina em ${trialEnd.toLocaleDateString('pt-BR')}.`};
+    return {type:'free', label:'Plano Free', title:'PsicoBase Free', detail:`Você está conhecendo o PsicoBase no plano Free. ${days} dia${days===1?'':'s'} no período inicial; as ferramentas respeitam os limites diários do Free.`};
   }
-  return {type:'expired', label:'Acesso expirado', title:'Período gratuito encerrado', detail:'Assine o plano mensal para recuperar o acesso completo.'};
+  if(reason === 'free' || profile?.access_status === 'expired' || profile?.access_status === 'free'){
+    return {type:'free', label:'Plano Free', title:'PsicoBase Free', detail:'Recursos essenciais ativos com limites diários. O Pro libera Professor e questões ilimitados, até 5 dossiês por dia e ferramentas avançadas.'};
+  }
+  return {type:'expired', label:'Acesso limitado', title:'Plano não identificado', detail:'Atualize sua sessão ou escolha um plano para continuar.'};
 };
 
-window.openSubscriptionModal = async function(){
+window.openSubscriptionModal = async function(featureName=''){
   try{await window.refreshAccessProfile?.()}catch(error){console.error('Erro ao atualizar assinatura:',error)}
-  if(window.AUTH?.reason==='expired')return;
   const modal=document.getElementById('subscription-modal');
   if(!modal) return;
   const info=getCurrentPlanInfo();
   const current=document.getElementById('subscription-current-plan');
+  const title=document.getElementById('subscription-modal-title');
+  const intro=document.getElementById('subscription-modal-intro');
+  if(title)title.textContent=featureName?`Desbloquear ${featureName}`:'Escolha seu plano';
+  if(intro)intro.textContent=featureName?`${featureName} faz parte do PsicoBase Completo. Escolha o plano que combina com o seu momento.`:'Compare o plano gratuito com o acesso completo do PsicoBase.';
   if(current) current.innerHTML=`<strong>${escapeHtml(info.title)}</strong>${escapeHtml(info.detail)}`;
   modal.classList.remove('hidden');
   document.body.style.overflow='hidden';
@@ -3839,6 +3948,32 @@ window.syncProfilePlanUI = function(){
   if(badge){badge.textContent=info.label;badge.className=`subscription-status-pill ${info.type}`;}
   if(copy) copy.textContent=info.detail;
 };
+
+window.maybeShowFreeUpgradeNudge=function(){
+  const user=window.AUTH?.user;
+  if(!user||!STATE.onboarded||window.isPremiumAccess?.()===true)return;
+  const createdAt=new Date(user.created_at||'').getTime();
+  if(!Number.isFinite(createdAt)||Date.now()-createdAt<24*60*60*1000)return;
+  const today=dateKey();
+  const key=`psicobase_upgrade_nudge_${user.id}_${today}`;
+  try{if(localStorage.getItem(key)==='1')return}catch{}
+  if(!document.getElementById('subscription-modal')?.classList.contains('hidden'))return;
+  try{localStorage.setItem(key,'1')}catch{}
+  window.openSubscriptionModal?.();
+};
+
+let lastAutomaticPlanRefresh=0;
+async function refreshPlanAfterCheckout(){
+  if(!window.AUTH?.user||Date.now()-lastAutomaticPlanRefresh<5000)return;
+  lastAutomaticPlanRefresh=Date.now();
+  const before=String(window.AUTH?.reason||'');
+  try{
+    await window.refreshAccessProfile?.();
+    if(before!==String(window.AUTH?.reason||''))window.render?.();
+  }catch(error){console.warn('Não foi possível atualizar o plano em segundo plano.',error)}
+}
+window.addEventListener('focus',refreshPlanAfterCheckout);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshPlanAfterCheckout()});
 
 
 
@@ -3874,9 +4009,21 @@ window.invokeAuthenticatedEdgeFunction = async function(functionName,body){
   const payload=await response.json().catch(()=>({}));
   if(!response.ok){
     const message=payload?.error||payload?.message||(response.status===401?'Sessão não autorizada. Entre novamente e tente outra vez.':'Não foi possível acessar o serviço agora.');
-    const error=new Error(message);error.status=response.status;throw error;
+    const error=new Error(message);error.status=response.status;error.code=payload?.code||'';error.quota=payload?.quota||null;throw error;
   }
   return payload;
+};
+
+window.consumeFeatureQuota=async function(feature,requested=1){
+  const session=await getFreshSupabaseSession();
+  if(!session?.user?.id)throw new Error('Entre novamente para continuar.');
+  const {data,error}=await window.supabaseClient.rpc('consume_daily_quota',{
+    p_feature:String(feature||''),
+    p_requested:Math.max(1,Number(requested)||1),
+    p_consume:true
+  });
+  if(error){console.error('Erro ao validar cota:',error);throw new Error('Não foi possível validar seu plano agora. Tente novamente.');}
+  return data||{allowed:false,reason:'invalid_response'};
 };
 
 window.getLearningMemory = function(){
@@ -3896,6 +4043,29 @@ window.saveLearningMemory = async function(entry){
    Não é salvo em localStorage, Supabase ou qualquer outra persistência. */
 const clinicalProfessorHistory=[];
 const CLINICAL_HISTORY_LIMIT=10;
+const FREE_AI_USAGE_KEY='psicobase_free_ai_usage_v1';
+const FREE_AI_LIMITS={professor:2,questions:2};
+
+function readFreeAiUsage(){
+  let usage={};try{usage=JSON.parse(localStorage.getItem(FREE_AI_USAGE_KEY)||'{}')}catch{}
+  if(usage.date!==dateKey())usage={date:dateKey(),professor:0,questions:0};
+  usage.professor=Math.max(0,Number(usage.professor)||0);
+  usage.questions=Math.max(0,Number(usage.questions)||0);
+  return usage;
+}
+function canUseAiFeature(type,featureName){
+  if(window.isPremiumAccess?.()===true)return true;
+  const usage=readFreeAiUsage(),limit=FREE_AI_LIMITS[type]||0;
+  if(usage[type]<limit)return true;
+  toast(`Você atingiu o limite Free de ${limit} usos hoje.`);
+  window.openSubscriptionModal?.(featureName);
+  return false;
+}
+function registerAiFeatureUse(type){
+  if(window.isPremiumAccess?.()===true)return;
+  const usage=readFreeAiUsage();usage[type]=(usage[type]||0)+1;
+  try{localStorage.setItem(FREE_AI_USAGE_KEY,JSON.stringify(usage))}catch{}
+}
 
 window.generateClinicalProfessorSession = async function(){
   const topic=(document.getElementById('pc-topic')?.value||'').trim();
@@ -3905,6 +4075,7 @@ window.generateClinicalProfessorSession = async function(){
   const status=document.getElementById('pc-status');
   const results=document.getElementById('pc-results');
   if(!topic){toast('Informe o tema da sessão.');document.getElementById('pc-topic')?.focus();return;}
+  if(!canUseAiFeature('professor','Professor Clínico ilimitado'))return;
   if(button){button.disabled=true;button.innerHTML='Preparando sessão…';}
   if(status){status.className='question-generator-status';status.textContent='Localizando conceitos e referências relacionados ao tema…';}
   if(results) results.innerHTML='';
@@ -3913,6 +4084,8 @@ window.generateClinicalProfessorSession = async function(){
     const payload=await invokeAuthenticatedEdgeFunction('professor-clinico',{mode:'professor',topic,level,goal,history});
     if(payload?.error)throw new Error(payload.error);
     const p=payload.pack||{};
+    if(!p||typeof p!=='object'||(!p.title&&!p.overview))throw new Error('A resposta não trouxe uma sessão válida.');
+    registerAiFeatureUse('professor');
     clinicalProfessorHistory.push(
       {role:'user',content:`Tema ou dúvida: ${topic}\nNível: ${level}\nObjetivo: ${goal}`},
       {role:'assistant',content:JSON.stringify(p)}
@@ -3936,7 +4109,11 @@ window.generateClinicalProfessorSession = async function(){
       ${pitfalls.length?`<section class="professor-section"><h4>Erros frequentes</h4><ul>${pitfalls.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul></section>`:''}
       <section class="professor-section"><h4>Referências utilizadas</h4>${refs.map(r=>`<div class="professor-reference">${escapeHtml(r)}</div>`).join('')||'<p>Nenhuma referência segura foi localizada para este tema.</p>'}<p style="font-size:11px;color:var(--muted);margin-top:12px">A plataforma não reproduz livros integralmente. A sessão é construída a partir de uma base curada de conceitos, relações teóricas e referências bibliográficas.</p></section>
     </div>`;
-  }catch(err){console.error(err);if(status){status.className='question-generator-status error';status.textContent=err.message||'Falha ao preparar a sessão.';}}
+  }catch(err){
+    console.error(err);
+    if(err?.code==='FREE_LIMIT_REACHED'||err?.code==='FREE_PER_REQUEST_LIMIT'||err?.code==='PREMIUM_REQUIRED')window.openSubscriptionModal?.('Professor Clínico ilimitado');
+    if(status){status.className='question-generator-status error';status.textContent=err.message||'Falha ao preparar a sessão.';}
+  }
   finally{if(button){button.disabled=false;button.innerHTML=`${ICON.plus} Criar sessão de estudo`;}}
 };
 
@@ -3949,6 +4126,8 @@ window.generateDiscursiveQuestions = async function(){
   const status=document.getElementById('qg-status');
   const results=document.getElementById('qg-results');
   if(!topic){toast('Informe o tema das questões.');document.getElementById('qg-topic')?.focus();return;}
+  if(window.isPremiumAccess?.()!==true&&count>5){toast('No plano Free você pode gerar até 5 questões por vez.');window.openSubscriptionModal?.('Questões ilimitadas');return;}
+  if(!canUseAiFeature('questions','Questões Discursivas ilimitadas'))return;
   if(button){button.disabled=true;button.innerHTML='Gerando questões…';}
   if(status){status.className='question-generator-status';status.textContent='Consultando a base teórica e estruturando as questões…';}
   if(results) results.innerHTML='';
@@ -3956,17 +4135,38 @@ window.generateDiscursiveQuestions = async function(){
     const payload=await invokeAuthenticatedEdgeFunction('professor-clinico',{mode:'questions',topic,count,level,focus});
     if(payload?.error)throw new Error(payload.error);
     const questions=Array.isArray(payload.questions)?payload.questions:[];
-    saveLearningMemory({topic,activity_type:'questoes_discursivas',level,summary:`${questions.length} questões sobre ${topic}`});
     if(!questions.length) throw new Error('A resposta não trouxe questões válidas.');
+    registerAiFeatureUse('questions');
+    saveLearningMemory({topic,activity_type:'questoes_discursivas',level,summary:`${questions.length} questões sobre ${topic}`});
     if(status){status.className='question-generator-status hidden';status.textContent='';}
     if(results) results.innerHTML=questions.map((q,i)=>`<article class="generated-question"><div class="generated-question-head"><div><div class="generated-question-number">Questão ${i+1}</div><h4>${escapeHtml(q.question||'')}</h4></div><span class="author-tag">${escapeHtml(q.difficulty||level)}</span></div>${q.expected_points?.length?`<div class="generated-question-section"><strong>Pontos esperados</strong><ul>${q.expected_points.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul></div>`:''}${q.answer_guide?`<div class="generated-question-section"><strong>Orientação de resposta</strong><p>${escapeHtml(q.answer_guide)}</p></div>`:''}${q.references?.length?`<div class="generated-question-section"><strong>Referências sugeridas</strong>${q.references.map(r=>`<div class="question-reference">${escapeHtml(r)}</div>`).join('')}</div>`:''}</article>`).join('');
   }catch(err){
     console.error(err);
+    if(err?.code==='FREE_LIMIT_REACHED'||err?.code==='FREE_PER_REQUEST_LIMIT'||err?.code==='PREMIUM_REQUIRED')window.openSubscriptionModal?.('Questões Discursivas ilimitadas');
     if(status){status.className='question-generator-status error';status.textContent=err.message||'Falha ao gerar as questões.';}
   }finally{
     if(button){button.disabled=false;button.innerHTML=`${ICON.plus} Gerar questões fundamentadas`;}
   }
 };
+
+/* Freemium: recursos avançados continuam visíveis, mas no plano Free a
+   navegação abre a escolha de assinatura antes de entrar na ferramenta. */
+const PSICOBASE_PREMIUM_ROUTES={
+  'clinica-supervisao':'Supervisor Clínico',
+  historico:'Histórico de evolução'
+};
+const navigateWithoutPremiumGate=window.nav;
+window.nav=function(page,param){
+  const feature=PSICOBASE_PREMIUM_ROUTES[page];
+  if(feature&&!window.isPremiumAccess?.()){
+    window.toggleMobileMore?.(false);
+    window.openSubscriptionModal?.(feature);
+    return;
+  }
+  window.toggleMobileMore?.(false);
+  return navigateWithoutPremiumGate?.(page,param);
+};
+try{nav=window.nav}catch{}
 </script>
 
 
@@ -3974,17 +4174,31 @@ window.generateDiscursiveQuestions = async function(){
   <div class="subscription-modal-backdrop" onclick="closeSubscriptionModal()"></div>
   <section class="subscription-modal-card subscription-manager-ui">
     <button class="subscription-modal-close" onclick="closeSubscriptionModal()" aria-label="Fechar">×</button>
-    <header class="subscription-manager-head-ui"><div><span class="eyebrow">Plano e acesso</span><h2 id="subscription-modal-title">Gerenciar assinatura</h2><p>Consulte seu acesso atual e veja o que está incluído no plano completo do PsicoBase.</p></div><div class="subscription-manager-mark-ui">P</div></header>
-    <div class="subscription-current-label-ui">Situação da sua conta</div>
-    <div id="subscription-current-plan" class="subscription-current-plan"></div>
-    <div class="subscription-plan-grid">
-      <article class="subscription-plan featured">
-        <div class="subscription-plan-main-ui"><div><div class="subscription-plan-tag">Plano completo</div><h3>PsicoBase Mensal</h3><p>Para quem quer manter estudo, repertório e treino clínico reunidos em uma única rotina.</p></div><div class="subscription-price"><strong>R$ 19,90</strong><span>/mês</span></div></div>
-        <div class="subscription-benefit-grid-ui"><span>✓ Base de conhecimento completa</span><span>✓ Novo caso clínico diário</span><span>✓ Professor Clínico</span><span>✓ Questões discursivas</span><span>✓ Progresso e histórico</span><span>✓ Anotações e favoritos</span></div>
-        <div class="subscription-action-ui"><a class="btn primary subscription-checkout" href="https://pay.lowify.com.br/checkout.php?product_id=jeONK3" target="_blank" rel="noopener">Assinar plano completo</a><small>Use no checkout o mesmo e-mail cadastrado no PsicoBase.</small></div>
-      </article>
+    <header class="upgrade-hero-ui">
+      <span class="upgrade-brand-ui">PSICOBASE PRO</span>
+      <h2 id="subscription-modal-title">Seu estudo pode ir muito mais longe.</h2>
+      <p id="subscription-modal-intro">Continue usando o Free ou libere uma rotina de estudo sem limites.</p>
+    </header>
+    <div class="upgrade-timeline-ui">
+      <div class="upgrade-step-ui done"><i>✓</i><div><strong>Você já começou</strong><span>Seu perfil, progresso e materiais continuam salvos.</span></div></div>
+      <div class="upgrade-step-ui"><i>1</i><div><strong>Plano Free</strong><span>1 dossiê/dia · 2 sessões do Professor/dia · 2 gerações de questões/dia.</span></div></div>
+      <div class="upgrade-step-ui pro"><i>∞</i><div><strong>Com o Pro, o estudo não para</strong><span>Professor e questões ilimitados · até 5 dossiês clínicos por dia · recursos avançados.</span></div></div>
     </div>
-    <footer class="subscription-manager-footer-ui"><span>Pagamento processado em ambiente externo seguro.</span><span>Seu histórico permanece vinculado à sua conta.</span></footer>
+    <section class="upgrade-choice-panel-ui">
+      <h3>Escolha como continuar</h3>
+      <div id="subscription-current-plan" class="subscription-current-plan upgrade-current-ui"></div>
+      <article class="upgrade-plan-ui upgrade-free-ui">
+        <div><span class="upgrade-plan-kicker-ui">FREE</span><strong>PsicoBase Free</strong><small>Recursos essenciais com limites diários</small></div><b>R$ 0</b>
+      </article>
+      <article class="upgrade-plan-ui upgrade-pro-ui">
+        <span class="upgrade-best-ui">MAIS LIBERDADE PARA ESTUDAR</span>
+        <div><span class="upgrade-plan-kicker-ui">PRO</span><strong>PsicoBase Mensal</strong><small>Uso ilimitado das ferramentas de IA</small></div><div class="upgrade-price-ui"><b>R$ 19,90</b><small>/mês</small></div>
+        <div class="upgrade-benefits-ui"><span>✓ Professor Clínico ilimitado</span><span>✓ Questões discursivas ilimitadas</span><span>✓ Até 5 dossiês clínicos por dia</span><span>✓ Supervisor Clínico e histórico</span></div>
+      </article>
+      <a class="upgrade-cta-ui" href="https://pay.lowify.com.br/checkout.php?product_id=jeONK3" target="_blank" rel="noopener">Quero desbloquear o PsicoBase Pro</a>
+      <button class="upgrade-stay-free-ui" type="button" onclick="closeSubscriptionModal()">Continuar no plano Free por enquanto</button>
+      <small class="upgrade-checkout-note-ui">No checkout, use o mesmo e-mail cadastrado no PsicoBase.</small>
+    </section>
   </section>
 </div>
 
@@ -3997,6 +4211,20 @@ window.generateDiscursiveQuestions = async function(){
 .field small{display:block;margin-top:7px;color:var(--muted);font-size:10.5px;line-height:1.45}
 .btn{min-height:38px;align-items:center}
 .btn.primary{box-shadow:0 10px 28px -18px color-mix(in srgb,var(--accent) 65%,transparent)}
+
+/* FREEMIUM + NAVEGAÇÃO MOBILE COMPLETA */
+.nav-item{position:relative}.nav-premium-lock{margin-left:auto;padding:3px 6px;border-radius:999px;background:color-mix(in srgb,var(--gold-soft) 78%,var(--surface));color:#9b732c;border:1px solid color-mix(in srgb,var(--gold) 28%,var(--border));font-size:7.5px;font-weight:850;letter-spacing:.05em;text-transform:uppercase}.premium-locked-nav{color:color-mix(in srgb,var(--muted) 88%,var(--ink))}
+.subscription-status-pill.free{background:var(--surface-2);color:var(--ink-soft);border:1px solid var(--border)}
+.subscription-manager-ui .subscription-plan-grid{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:14px}.subscription-plan-free-ui{background:color-mix(in srgb,var(--surface-2) 72%,var(--surface))!important}.subscription-plan-free-ui .subscription-plan-tag{color:var(--muted)}.subscription-free-current{width:100%;justify-content:center;background:var(--surface-2);color:var(--ink-soft);border:1px solid var(--border)}
+.mobile-more-backdrop,.mobile-more-sheet{display:none}
+@media(max-width:860px){
+ .mobile-more-backdrop{display:block;position:fixed;inset:0;z-index:68;background:rgba(6,11,18,.52);backdrop-filter:blur(5px)}
+ .mobile-more-sheet{display:block;position:fixed;left:10px;right:10px;bottom:76px;z-index:72;padding:9px 14px 16px;border:1px solid var(--border);border-radius:24px;background:color-mix(in srgb,var(--surface) 96%,transparent);box-shadow:0 30px 90px rgba(5,12,22,.3);max-height:calc(100vh - 100px);overflow:auto}
+ .mobile-more-handle{width:38px;height:4px;border-radius:99px;background:var(--border);margin:2px auto 10px}.mobile-more-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:3px 3px 13px}.mobile-more-head>div span{display:block;font-size:7.5px;letter-spacing:.16em;color:var(--muted);font-weight:800}.mobile-more-head>div strong{display:block;font-family:var(--serif);font-size:21px;font-weight:500;margin-top:2px}.mobile-more-head>button{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-size:21px;line-height:1}
+ .mobile-more-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mobile-more-item{position:relative;display:grid;grid-template-columns:32px 1fr;align-items:center;gap:9px;text-align:left;min-height:60px;padding:10px;border:1px solid var(--border);border-radius:15px;background:var(--surface-2);color:var(--ink)}.mobile-more-item svg{width:18px;height:18px;padding:7px;box-sizing:content-box;border-radius:10px;background:var(--surface);color:var(--accent)}.mobile-more-item>span{font-size:10.5px;font-weight:750;line-height:1.2}.mobile-more-item>small{position:absolute;right:7px;top:6px;padding:2px 5px;border-radius:999px;background:color-mix(in srgb,var(--gold-soft) 86%,var(--surface));color:#9b732c;font-size:6.5px;font-weight:850;letter-spacing:.04em;text-transform:uppercase}.mobile-more-item.premium-locked{background:color-mix(in srgb,var(--surface-2) 82%,var(--gold-soft));border-color:color-mix(in srgb,var(--border) 75%,var(--gold))}
+ body.mobile-menu-open{overflow:hidden}
+}
+@media(max-width:430px){.mobile-more-sheet{left:7px;right:7px;bottom:73px}.mobile-more-grid{gap:7px}.mobile-more-item{min-height:57px;padding:9px}.mobile-more-item>span{font-size:10px}}
 
 /* PERFIL */
 .profile-hero-ui{position:relative;overflow:hidden;display:flex;align-items:center;gap:20px;padding:28px 30px;margin-bottom:20px;border-radius:26px;background:linear-gradient(135deg,var(--navy),#263b52);color:#fff;box-shadow:0 28px 70px -45px rgba(9,18,31,.9)}
@@ -4024,6 +4252,16 @@ window.generateDiscursiveQuestions = async function(){
 /* GERENCIAR ASSINATURA */
 .subscription-modal{padding:24px;background:transparent}.subscription-modal-backdrop{background:rgba(5,10,17,.74);backdrop-filter:blur(12px)}.subscription-manager-ui{width:min(100%,820px);padding:0;overflow:auto;border-radius:27px;border:1px solid var(--border);box-shadow:0 45px 130px rgba(0,0,0,.42)}.subscription-manager-head-ui{display:flex;justify-content:space-between;gap:24px;padding:30px 32px 24px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--surface),color-mix(in srgb,var(--accent-soft) 44%,var(--surface)))}.subscription-manager-head-ui h2{font-size:29px!important;margin:4px 0 7px!important}.subscription-manager-head-ui p{font-size:11.5px;color:var(--muted);line-height:1.5;margin:0;max-width:560px}.subscription-manager-mark-ui{width:48px;height:48px;flex:0 0 48px;border-radius:15px;display:grid;place-items:center;background:var(--navy);color:#fff;font-family:var(--serif);font-size:22px}.subscription-current-label-ui{padding:22px 32px 6px;font-size:9.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:750}.subscription-manager-ui .subscription-current-plan{margin:0 32px 20px;padding:14px 16px}.subscription-manager-ui .subscription-plan-grid{padding:0 32px}.subscription-manager-ui .subscription-plan{padding:22px;border-radius:20px;background:var(--surface);box-shadow:none}.subscription-plan-main-ui{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}.subscription-plan-main-ui h3{font-size:22px}.subscription-plan-main-ui p{font-size:11px;color:var(--muted);max-width:450px;line-height:1.5;margin:6px 0 0}.subscription-manager-ui .subscription-price{margin:0;white-space:nowrap}.subscription-benefit-grid-ui{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 20px;margin:20px 0;padding:18px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}.subscription-benefit-grid-ui span{font-size:11px;color:var(--ink-soft)}.subscription-action-ui{display:flex;align-items:center;gap:14px}.subscription-action-ui .subscription-checkout{width:auto;min-width:220px;margin:0}.subscription-action-ui small{margin:0;text-align:left}.subscription-manager-footer-ui{display:flex;justify-content:space-between;gap:14px;padding:17px 32px 24px;color:var(--muted);font-size:9.5px}.subscription-modal-close{right:17px;top:16px;z-index:4}
 
+/* PAYWALL PRO — inspirado no fluxo vertical da referência, adaptado ao PsicoBase */
+.subscription-modal{padding:18px}.subscription-manager-ui{width:min(100%,520px);max-height:94vh;border-radius:30px;border:1px solid rgba(255,255,255,.1);background:#050608!important;color:#fff;box-shadow:0 50px 140px rgba(0,0,0,.62)}
+.subscription-manager-ui .subscription-modal-close{position:sticky;float:left;left:18px;top:17px;margin:17px 0 -48px 17px;width:36px;height:36px;border:1px solid rgba(255,255,255,.09);background:#17181b;color:#fff;z-index:8}
+.upgrade-hero-ui{padding:54px 38px 18px;text-align:center}.upgrade-brand-ui{display:inline-block;font-size:8px;font-weight:850;letter-spacing:.2em;color:#6886ff}.upgrade-hero-ui h2{max-width:390px;margin:9px auto 8px!important;font-family:var(--sans)!important;font-size:27px!important;line-height:1.12;font-weight:800!important;letter-spacing:-.025em}.upgrade-hero-ui p{max-width:380px;margin:0 auto;color:rgba(255,255,255,.53);font-size:11px;line-height:1.5}
+.upgrade-timeline-ui{position:relative;display:grid;gap:0;padding:4px 39px 23px}.upgrade-step-ui{position:relative;display:grid;grid-template-columns:34px 1fr;gap:13px;min-height:65px}.upgrade-step-ui:not(:last-child):before{content:'';position:absolute;left:16px;top:31px;bottom:-2px;width:2px;background:#3157ff}.upgrade-step-ui i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#182044;border:1px solid #3157ff;color:#7890ff;font-size:11px;font-weight:850;font-style:normal;box-shadow:0 0 0 4px rgba(49,87,255,.08)}.upgrade-step-ui.done i,.upgrade-step-ui.pro i{background:#3157ff;color:#fff}.upgrade-step-ui strong{display:block;font-size:13px;margin:1px 0 4px}.upgrade-step-ui span{display:block;color:rgba(255,255,255,.48);font-size:10.5px;line-height:1.42}.upgrade-step-ui.pro strong{color:#aab8ff}
+.upgrade-choice-panel-ui{margin-top:0;padding:25px 22px 23px;border-top:1px solid rgba(255,255,255,.08);border-radius:28px 28px 0 0;background:#151618}.upgrade-choice-panel-ui>h3{text-align:center;font-size:20px;margin:0 0 15px}.subscription-manager-ui .upgrade-current-ui{margin:0 0 12px!important;padding:9px 12px!important;background:#0d0e10!important;border-color:rgba(255,255,255,.08)!important;color:rgba(255,255,255,.55)!important;font-size:9.5px!important}.subscription-manager-ui .upgrade-current-ui strong{color:#fff!important;font-family:var(--sans)!important;font-size:11px!important;margin-bottom:1px!important}
+.upgrade-plan-ui{position:relative;display:flex;align-items:center;justify-content:space-between;gap:15px;padding:16px 17px;border-radius:18px;margin-top:11px}.upgrade-plan-ui>div:first-of-type{display:flex;flex-direction:column}.upgrade-plan-kicker-ui{font-size:7px;letter-spacing:.13em;font-weight:900;margin-bottom:3px}.upgrade-plan-ui strong{font-size:15px}.upgrade-plan-ui small{font-size:9px;line-height:1.35}.upgrade-plan-ui>b{font-size:14px;white-space:nowrap}.upgrade-free-ui{border:1px solid rgba(255,255,255,.12);background:#08090a;color:#fff}.upgrade-free-ui small{color:rgba(255,255,255,.4)}
+.upgrade-pro-ui{display:grid;grid-template-columns:minmax(0,1fr) auto;background:#f7f8fb;color:#0a0b0e;padding-top:22px;border:2px solid #607cff;box-shadow:0 15px 35px rgba(18,43,135,.16)}.upgrade-pro-ui .upgrade-best-ui{position:absolute;top:-8px;left:16px;padding:5px 9px;border-radius:7px;background:#3157ff;color:#fff;font-size:6.8px;font-weight:900;letter-spacing:.08em}.upgrade-pro-ui .upgrade-plan-kicker-ui{color:#3157ff}.upgrade-pro-ui>div small{color:#666b76}.upgrade-price-ui{text-align:right}.upgrade-price-ui b{display:block;font-size:16px}.upgrade-price-ui small{display:block;color:#686d78!important}.upgrade-benefits-ui{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:7px 12px;padding-top:13px;margin-top:2px;border-top:1px solid #e1e4eb}.upgrade-benefits-ui span{font-size:9px;font-weight:650;color:#353941}
+.upgrade-cta-ui{display:flex;align-items:center;justify-content:center;min-height:50px;margin-top:14px;padding:0 16px;border-radius:17px;background:linear-gradient(135deg,#294cff,#3f63ff);color:#fff!important;text-decoration:none;font-size:12px;font-weight:850;box-shadow:0 16px 32px rgba(49,87,255,.28);transition:transform .18s,filter .18s}.upgrade-cta-ui:hover{transform:translateY(-1px);filter:brightness(1.08)}.upgrade-stay-free-ui{display:block;width:100%;padding:11px 10px 5px;border:0;background:transparent;color:rgba(255,255,255,.57);font-size:9.5px;cursor:pointer}.upgrade-checkout-note-ui{display:block;text-align:center;color:rgba(255,255,255,.3);font-size:8.5px;margin-top:5px}.free-plan-usage-note{margin-top:9px;color:var(--muted);font-size:9.5px;line-height:1.45}
+
 /* TELA PREMIUM / ACESSO EXPIRADO */
 .premium-screen-ui{position:fixed;inset:0;z-index:1000;padding:28px;overflow:auto;background:radial-gradient(circle at 16% 5%,rgba(96,126,153,.18),transparent 31%),radial-gradient(circle at 84% 90%,rgba(186,144,68,.12),transparent 30%),#0a0f17}.premium-orb-ui{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none}.premium-orb-a-ui{width:440px;height:440px;left:-180px;top:-180px;background:rgba(57,99,126,.19)}.premium-orb-b-ui{width:420px;height:420px;right:-190px;bottom:-180px;background:rgba(194,149,67,.14)}.premium-card-ui{position:relative;z-index:2;width:min(100%,980px);padding:26px 28px 22px;border-radius:32px;text-align:left;background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.032));border:1px solid rgba(255,255,255,.11);box-shadow:0 50px 140px rgba(0,0,0,.45)}.premium-brand-ui{display:flex;align-items:center;gap:11px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.08)}.premium-brand-ui .access-lock-mark{width:40px;height:40px;margin:0;border-radius:13px;font-family:var(--serif);font-size:18px}.premium-brand-ui>span{font-size:9px;letter-spacing:.18em;color:rgba(255,255,255,.52);font-weight:800}.premium-layout-ui{display:grid;grid-template-columns:minmax(0,1.1fr) 340px;gap:42px;padding:42px 16px 34px}.premium-kicker-ui{font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:#d9b56d;font-weight:800}.premium-copy-ui h1{font-family:var(--serif);font-size:39px;line-height:1.04;font-weight:450;letter-spacing:-.03em;margin:10px 0 14px;max-width:590px}.premium-copy-ui>p{font-size:12.5px;color:rgba(255,255,255,.6);line-height:1.65;max-width:590px}.premium-benefits-ui{display:grid;gap:9px;margin-top:24px}.premium-benefits-ui>div{display:grid;grid-template-columns:25px 1fr;gap:10px;align-items:start}.premium-benefits-ui i{width:25px;height:25px;border-radius:8px;background:rgba(91,222,145,.1);color:#79e7a7;display:grid;place-items:center;font-style:normal;font-size:10px}.premium-benefits-ui strong{display:block;font-size:11.5px}.premium-benefits-ui small{display:block;color:rgba(255,255,255,.4);font-size:9.5px;margin-top:2px}.premium-offer-ui{padding:25px;border:1px solid rgba(255,255,255,.1);border-radius:23px;background:rgba(255,255,255,.055);align-self:center}.premium-offer-tag-ui{display:inline-block;padding:5px 8px;border-radius:999px;background:rgba(217,181,109,.12);color:#e0bd79;font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}.premium-offer-ui h2{font-family:var(--serif);font-size:23px;margin:15px 0 5px}.premium-offer-ui>p{font-size:10.5px;color:rgba(255,255,255,.45);line-height:1.5}.premium-price-ui{display:flex;align-items:baseline;gap:5px;margin:18px 0}.premium-price-ui small{font-size:13px;color:#d9b56d}.premium-price-ui strong{font-family:var(--serif);font-size:38px;font-weight:500}.premium-price-ui span{font-size:10px;color:rgba(255,255,255,.42)}.premium-divider-ui{height:1px;background:rgba(255,255,255,.08);margin-bottom:17px}.premium-offer-ui .access-subscribe{min-height:46px;background:#e1bd76}.premium-email-ui{display:block;text-align:center;color:rgba(255,255,255,.38);font-size:8.5px;line-height:1.5;margin-top:11px}.premium-email-ui b{color:rgba(255,255,255,.7);font-weight:600}.premium-footer-ui{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 4px 0;border-top:1px solid rgba(255,255,255,.08);font-size:9.5px;color:rgba(255,255,255,.35)}.premium-footer-ui .access-secondary{margin:0}
 
@@ -4041,10 +4279,11 @@ html[data-theme="dark"] .field input,html[data-theme="dark"] .field textarea,htm
  .profile-hero-ui{padding:22px;align-items:flex-start;flex-wrap:wrap}.profile-avatar-ui{width:54px;height:54px;flex-basis:54px;border-radius:17px}.profile-hero-copy-ui{flex-basis:calc(100% - 78px)}.profile-hero-copy-ui h1{font-size:25px}.profile-hero-badge-ui{margin-left:74px}
  .settings-fields-ui{grid-template-columns:1fr}.profile-aside-ui{grid-template-columns:1fr}.preference-row-ui{grid-template-columns:38px 1fr}.preference-row-ui>.btn,.preference-row-ui>.settings-state-ui{grid-column:2;justify-self:start}.settings-panel-ui{padding:19px}
  .teaching-hero-ui{grid-template-columns:1fr;padding:27px 24px}.teaching-hero-ui h1{font-size:29px}.teaching-hero-seal-ui{display:none}.teaching-tools-mini-ui{grid-template-columns:1fr}.professor-screen-ui,.questions-screen-ui{border-radius:21px}.professor-screen-ui .clinical-professor-head,.questions-head-ui{padding:24px 22px}.professor-screen-ui .clinical-professor-head h3,.questions-head-ui h2{font-size:24px}.professor-screen-ui .clinical-professor-seal{display:none}.professor-controls-ui,.professor-preview-ui,.questions-form-ui,.questions-preview-ui{padding:22px}.professor-flow-ui{display:none}.questions-number-ui{display:none}.compact-grid-ui{grid-template-columns:1fr!important}.clinical-professor-actions{display:block!important}.clinical-professor-note{display:block;margin-top:11px}.clinical-professor-results,.questions-screen-ui .question-results:not(:empty){padding-left:22px!important;padding-right:22px!important}
- .subscription-modal{padding:12px}.subscription-manager-ui{border-radius:22px}.subscription-manager-head-ui{padding:25px 21px 20px}.subscription-manager-mark-ui{display:none}.subscription-current-label-ui{padding:20px 21px 6px}.subscription-manager-ui .subscription-current-plan{margin-left:21px;margin-right:21px}.subscription-manager-ui .subscription-plan-grid{padding:0 21px}.subscription-plan-main-ui{display:block}.subscription-manager-ui .subscription-price{margin-top:13px}.subscription-benefit-grid-ui{grid-template-columns:1fr}.subscription-action-ui{display:block}.subscription-action-ui .subscription-checkout{width:100%;margin-bottom:9px}.subscription-manager-footer-ui{display:block;padding:15px 21px 22px}.subscription-manager-footer-ui span{display:block;margin-top:4px}
+ .subscription-modal{padding:12px}.subscription-manager-ui{border-radius:22px}.subscription-manager-head-ui{padding:25px 21px 20px}.subscription-manager-mark-ui{display:none}.subscription-current-label-ui{padding:20px 21px 6px}.subscription-manager-ui .subscription-current-plan{margin-left:21px;margin-right:21px}.subscription-manager-ui .subscription-plan-grid{padding:0 21px;grid-template-columns:1fr}.subscription-plan-main-ui{display:block}.subscription-manager-ui .subscription-price{margin-top:13px}.subscription-benefit-grid-ui{grid-template-columns:1fr}.subscription-action-ui{display:block}.subscription-action-ui .subscription-checkout{width:100%;margin-bottom:9px}.subscription-manager-footer-ui{display:block;padding:15px 21px 22px}.subscription-manager-footer-ui span{display:block;margin-top:4px}
+ .subscription-manager-ui{max-height:96vh;border-radius:25px}.upgrade-hero-ui{padding:52px 24px 16px}.upgrade-hero-ui h2{font-size:24px!important}.upgrade-timeline-ui{padding:4px 24px 20px}.upgrade-choice-panel-ui{padding:22px 16px 20px}.subscription-manager-ui .upgrade-current-ui{margin:0 0 12px!important}.upgrade-benefits-ui{grid-template-columns:1fr 1fr}
  .premium-screen-ui{padding:14px}.premium-card-ui{padding:20px 18px 16px;border-radius:25px}.premium-layout-ui{grid-template-columns:1fr;padding:28px 2px 24px}.premium-copy-ui h1{font-size:31px}.premium-offer-ui{width:100%}.premium-footer-ui{align-items:flex-start;flex-direction:column}.premium-footer-ui .access-secondary{padding-left:0}
 }
-@media(max-width:460px){.profile-hero-copy-ui{flex-basis:100%}.profile-hero-badge-ui{margin-left:0}.profile-avatar-ui{margin-bottom:2px}.profile-hero-ui{gap:13px}.teaching-hero-ui h1{font-size:26px}.premium-copy-ui h1{font-size:28px}.premium-layout-ui{gap:20px}}
+@media(max-width:460px){.profile-hero-copy-ui{flex-basis:100%}.profile-hero-badge-ui{margin-left:0}.profile-avatar-ui{margin-bottom:2px}.profile-hero-ui{gap:13px}.teaching-hero-ui h1{font-size:26px}.premium-copy-ui h1{font-size:28px}.premium-layout-ui{gap:20px}.upgrade-benefits-ui{grid-template-columns:1fr}.upgrade-plan-ui{padding-left:14px;padding-right:14px}.upgrade-hero-ui{padding-left:19px;padding-right:19px}.upgrade-timeline-ui{padding-left:19px;padding-right:19px}}
 </style>
 
 </body>
